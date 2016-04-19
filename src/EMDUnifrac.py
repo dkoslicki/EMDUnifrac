@@ -7,26 +7,6 @@ import dendropy
 
 
 
-def simulate_data(basis):
-	'''
-	Simulate environments, suitable for feeding directly to FastUnifrac. 
-	Input is a list of nodes on which the distribution will be given.
-	Will return distribution only on labeled nodes. Returns (envs)
-	'''
-	weights_sample1 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
-	#Multiply since fast_unifrac expects numbers > 1
-	weights_sample1 = 1000*weights_sample1 
-	weights_sample2 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
-	#make it sparse
-	weights_sample2 = 1000*weights_sample2
-	envs = dict()
-	i=0
-	for node in basis:
-		envs[node] = {'sample1':weights_sample1[i],'sample2':weights_sample2[i]}
-		i = i+1
-	return (envs)
-
-
 def parse_tree(tree_str):
 	'''
 	(Tint,lint,nodes_in_order) = parse_tree(tree_str) 
@@ -90,6 +70,26 @@ def parse_tree_file(tree_str_file):
 			Tint[i] = nodes_to_index[parent.taxon.label]
 			lint[nodes_to_index[node.taxon.label], nodes_to_index[parent.taxon.label]] = node.edge.length
 	return (Tint,lint,nodes_in_order)
+
+def simulate_data(basis):
+	'''
+	Simulate environments, suitable for feeding directly to FastUnifrac. 
+	Input is a list of nodes on which the distribution will be given.
+	Will return distribution only on labeled nodes. Returns (envs)
+	'''
+	weights_sample1 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
+	#Multiply since fast_unifrac expects numbers > 1
+	weights_sample1 = 1000*weights_sample1 
+	weights_sample2 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
+	#make it sparse
+	weights_sample2 = 1000*weights_sample2
+	envs = dict()
+	i=0
+	for node in basis:
+		envs[node] = {'sample1':weights_sample1[i],'sample2':weights_sample2[i]}
+		i = i+1
+	return (envs)
+
 
 def parse_envs(envs, nodes_in_order):
 	'''
@@ -280,4 +280,10 @@ def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 			neg[Tint[i]] |= neg[i]
 	return (Z, F)  # The returned flow is on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
+def test_parse_tree():
+	tree_str = '((B:0.1,C:0.2)A:0.3);'
+	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
+	assert Tint == {0: 2, 1: 2, 2: 3}
+	assert lint == {(1, 2): 0.1, (2, 3): 0.3, (0, 2): 0.2}
+	assert nodes_in_order == ['C', 'B', 'A', 'temp0']
 
