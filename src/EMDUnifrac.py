@@ -1,10 +1,5 @@
-import math,string,fpformat,random,re,sys,subprocess,getopt  # import of standard modules
 import numpy as np
 import dendropy
-
-#print("WARNING: all branch lengths must be non-zero")
-#print("WARNING: development still in progress. Use at your own risk")
-
 
 
 def parse_tree(tree_str):
