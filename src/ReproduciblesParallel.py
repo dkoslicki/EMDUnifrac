@@ -1,24 +1,20 @@
+# This is the same as Reproducibles.py, but since the timing is embarrassingly parallel, I'll parallelize over the tree size
+# simply to decrease amount of time to wait for results.
 import EMDUnifracPackage as EMDU
 from cogent.parse.tree import DndParser
 from cogent.maths.unifrac.fast_unifrac import fast_unifrac
 from cogent.maths.unifrac.fast_tree import UniFracTreeNode
 import numpy as np
 import timeit
-import dendropy
-from dendropy import simulate
 from ete2 import Tree
 import timeit
 from itertools import *
 from multiprocessing import Pool, freeze_support
 
 num_threads = 47
-#tree_sizes = range(10,250000,5000)
-tree_sizes = range(10,110010,5000)
-#tree_sizes = range(10,5000,100)
+tree_sizes = range(10,110010,5000)  # Number of tree leaves to iterate over
 num_trees = 10
-#num_trees = 1
 num_samples = 10
-#num_samples = 1
 
 
 def timing_star(arg):
@@ -26,7 +22,7 @@ def timing_star(arg):
 
 
 def timing(tree_size, num_trees, num_samples):
-	FU_times = list()
+	FastUnifrac_times = list()
 	EMDUnifrac_times = list()
 	EMDUnifrac_flow_times = list()
 	for tree_it in range(num_trees):
@@ -54,30 +50,32 @@ def timing(tree_size, num_trees, num_samples):
 			t0 = timeit.default_timer()
 			res = fast_unifrac(tr, envs, weighted=True, modes=set(['distance_matrix']))
 			t1 = timeit.default_timer()
-			FU_times.append(t1-t0)
-	return  (np.array(EMDUnifrac_times).mean(), np.array(EMDUnifrac_flow_times).mean(), np.array(FU_times).mean())
+			FastUnifrac_times.append(t1-t0)
+	return  (np.array(EMDUnifrac_times).mean(), np.array(EMDUnifrac_flow_times).mean(), np.array(FastUnifrac_times).mean())
 
-
+#  Parallelize over the tree sizes
 pool = Pool(processes = num_threads)
 results = pool.map(timing_star, izip(tree_sizes, repeat(num_trees), repeat(num_samples)))
 pool.close()
 pool.join()
-FU_times = list()
+FastUnifrac_times = list()
 EMDUnifrac_times = list()
 EMDUnifrac_flow_times = list()
+# Gather results
 for result in results:
 	EMDUnifrac_times.append(result[0])
 	EMDUnifrac_flow_times.append(result[1])
-	FU_times.append(result[2])
+	FastUnifrac_times.append(result[2])
 
 
 EMDUnifrac_times = np.array(EMDUnifrac_times)
 EMDUnifrac_flow_times = np.array(EMDUnifrac_flow_times)
-FU_times = np.array(FU_times)
+FastUnifrac_times = np.array(FastUnifrac_times)
 
+# Export results
 np.savetxt('EMDU_mean_times.txt', EMDUnifrac_times, delimiter=',')
 np.savetxt('EMDU_flow_mean_times.txt', EMDUnifrac_flow_times, delimiter=',')
-np.savetxt('FastUnifrac_mean_times.txt', FU_times, delimiter=',')
+np.savetxt('FastUnifrac_mean_times.txt', FastUnifrac_times, delimiter=',')
 
 
 

@@ -14,10 +14,10 @@ num_trees = 5
 tree_sizes = range(10,100000,5000)  # Number of leaf nodes in the tree
 mean_EMDUnifrac_times = np.zeros(len(tree_sizes), dtype = np.float64)
 mean_EMDUnifrac_flow_times = np.zeros(len(tree_sizes), dtype = np.float64)
-mean_FastUnifractimes = np.zeros(len(tree_sizes), dtype = np.float64)
+mean_FastUnifrac_times = np.zeros(len(tree_sizes), dtype = np.float64)
 #Iterate over tree sizes
 for tree_size in tree_sizes:
-	FastUnifractimes = list()
+	FastUnifrac_times = list()
 	EMDUnifrac_times = list()
 	EMDUnifrac_flow_times = list()
 	for tree_it in range(num_trees):
@@ -42,21 +42,21 @@ for tree_size in tree_sizes:
 			Z = EMDU.EMDUnifrac_weighted(T, l, nodes_in_order, P, Q)
 			t1 = timeit.default_timer()
 			EMDUnifrac_times.append(t1-t0)
-			#FastUnifrac weighted
+			#FastUnifrac_ weighted
 			t0 = timeit.default_timer()
 			res = fast_unifrac(tr, envs, weighted=True, modes=set(['distance_matrix']))
 			t1 = timeit.default_timer()
-			FastUnifractimes.append(t1-t0)
+			FastUnifrac_times.append(t1-t0)
 			i = i+1
 	#Save means
 	mean_EMDUnifrac_times[tree_sizes.index(tree_size)] = np.array(EMDUnifrac_times).mean()
 	mean_EMDUnifrac_flow_times[tree_sizes.index(tree_size)] = np.array(EMDUnifrac_flow_times).mean()
-	mean_FastUnifractimes[tree_sizes.index(tree_size)] = np.array(FastUnifractimes).mean()
+	mean_FastUnifrac_times[tree_sizes.index(tree_size)] = np.array(FastUnifrac_times).mean()
 
 #  Export all mean times
 np.savetxt('EMDU_mean_times.txt', mean_EMDUnifrac_times, delimiter=',')
 np.savetxt('EMDU_flow_mean_times.txt', mean_EMDUnifrac_flow_times, delimiter=',')
-np.savetxt('FastUnifrac_mean_times.txt', mean_FastUnifractimes, delimiter=',')
+np.savetxt('FastUnifrac__mean_times.txt', mean_FastUnifrac_times, delimiter=',')
 
 
 
