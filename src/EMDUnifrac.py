@@ -4,108 +4,21 @@ import dendropy
 
 #print("WARNING: all branch lengths must be non-zero")
 #print("WARNING: development still in progress. Use at your own risk")
-#When doing all pairwise comparisons, I can get quite the speedup by making a single distance matrix from the tree, and just selecting
-#the appropriate rows and columns based on the particular samples (the distance matrix creation is by far the most time consuming step).
-
-class RandomTree:
-	def __init__(self,alltips=10,nobr=0,pm=0.03,shape=0.5,mean=1):
-		self.alltips=alltips   # number of tips
-		self.nobr=nobr     # use branch lengths
-		self.pm=pm         # probability of change per unit time
-		self.shape=shape   # gamma shape parameter
-		self.mean=mean     # mean of gamma dinstribution
-	
-	def constant_tree(self):  # function to generate a clock-like tree
-		if self.alltips <=2:
-			raise ValueError("error: need at least 3 tips.")
-		tips=[]
-		for i in range(1, self.alltips+1):
-			tips.append("T"+str(i))
-		Lb=[]
-		for i in range(len(tips)):
-			Lb.append(0)
-		n=1
-		dictionary={}
-		while len(tips)!=1:
-			R=random.random()
-			tyme=(-(math.log(R))/len(tips))*self.pm
-			fixtyme=fpformat.fix(tyme,5)
-			brlens=float(fixtyme)
-			for i in range(len(tips)):
-				Lb[i]=Lb[i]+brlens
-			nodeName = '@node%04i@' % n
-			s1=random.choice(tips)
-			i1=str(Lb[tips.index(s1)])
-			del Lb[tips.index(s1)]
-			tips.remove(s1)
-			s2=random.choice(tips)
-			i2=str(Lb[tips.index(s2)])
-			del Lb[tips.index(s2)]
-			tips.remove(s2)
-			if self.nobr:
-				nodo="("+s1+","+s2+")"
-			else:
-				nodo="("+s1+":"+i1+","+s2+":"+i2+")"
-			dictionary[nodeName]=nodo
-			tips.append(nodeName)
-			Lb.append(0)
-			n+=1
-		findNodes=re.compile(r"@node.*?@", re.I) #to identify a node name
-		lastNode = max(dictionary.keys())
-		treestring = lastNode
-		while 1:
-			nodeList = findNodes.findall(treestring)
-			if nodeList == []: break
-			for element in nodeList:
-				treestring=treestring.replace(element, dictionary[element])
-		return treestring + ';'
-	
-	def variable_tree(self):  # function to generate a variable tree
-		treestring=self.constant_tree()
-		findbr=re.compile(":[0-9]+.[0-9]+[\),]")
-		allbr=findbr.findall(treestring)
-		dicbr={}
-		for i in allbr:
-			br=(i.split(':'))[1]
-			brval=eval(br.strip('),'))
-			beta=float(self.shape)/self.mean
-			gammafactor=random.gammavariate(self.shape,beta)
-			newbr=brval*gammafactor
-			newbr1=fpformat.fix(newbr,5)
-			dicbr[i]=newbr1
-		for j in dicbr:
-			if ',' in j:
-				treestring=treestring.replace(j,':'+dicbr[j]+',') #This almost named all the internal nodes, but not quite. Try get non terminals
-			elif ')' in j:
-				treestring=treestring.replace(i,':'+dicbr[i]+')')
-		return treestring
 
 
-#Simulate environments, suitable for feeding directly to FastUnifrac. Will return distribution only on labeled nodes. Returns (envs)
+
 def simulate_data(basis):
-	#dtree = dendropy.Tree.get_from_string(tree_str, schema="newick", suppress_internal_node_taxa=False,store_tree_weights=True)
-	#basis = [item.taxon.label for item in dtree.leaf_nodes()]
-	#Use randomly generated samples on the leaves
-	#Can change the distribution later if I want
-	#cutoff = .2
-	#Make sure we get a meaningful distribution
-	#good_flag = 0
-	#while good_flag == 0:
+	'''
+	Simulate environments, suitable for feeding directly to FastUnifrac. 
+	Input is a list of nodes on which the distribution will be given.
+	Will return distribution only on labeled nodes. Returns (envs)
+	'''
 	weights_sample1 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
-	#make it sparse
-	#for i in range(len(weights_sample1)):
-	#	if weights_sample1[i]<cutoff:
-	#		weights_sample1[i] = 0
 	#Multiply since fast_unifrac expects numbers > 1
 	weights_sample1 = 1000*weights_sample1 
 	weights_sample2 = np.random.exponential(scale=1.0, size=(1,len(basis))).transpose()
 	#make it sparse
-	#for i in range(len(weights_sample2)):
-	#	if weights_sample2[i]<cutoff:
-	#		weights_sample2[i] = 0
 	weights_sample2 = 1000*weights_sample2
-	#if weights_sample1.sum()>0 and weights_sample2.sum()>0:
-	#	good_flag = 1
 	envs = dict()
 	i=0
 	for node in basis:
@@ -115,10 +28,14 @@ def simulate_data(basis):
 
 
 def parse_tree(tree_str):
-	# This function will parse a newick tree string and return the dictionary of ancestors T
-	# and will also return the branch length dictionary l
-	# NOTE: can probably clean this up so I compute Tint and lint directly instead of going over the tree twice
-	#dtree = dendropy.Tree.get_from_string(tree_str, schema="newick", suppress_internal_node_taxa=False,store_tree_weights=True)
+	'''
+	(Tint,lint,nodes_in_order) = parse_tree(tree_str) 
+	This function will parse a newick tree string and return the dictionary of ancestors Tint.
+	Tint indexes the nodes by integers, Tint[i] = j means j is the ancestor of i.
+	lint is a dictionary returning branch lengths: lint[i,j] = w(i,j) the weight of the edge connecting i and j.
+	nodes_in_order is a list of the nodes in the input tree_str such that T[i]=j means nodes_in_order[j] is an ancestor
+	of nodes_in_order[i]. Nodes are labeled from the leaves up.
+	'''
 	dtree = dendropy.Tree.get(data=tree_str, schema="newick", suppress_internal_node_taxa=False,store_tree_weights=True)
 	#Name all the internal nodes
 	nodes = dtree.nodes()
@@ -144,8 +61,14 @@ def parse_tree(tree_str):
 
 
 def parse_tree_file(tree_str_file):
-	# This function will parse a newick tree string and return the dictionary of ancestors T
-	# and will also return the branch length dictionary l
+	'''
+	(Tint,lint,nodes_in_order) = parse_tree(tree_str_file) 
+	This function will parse a newick tree file (in the file given by tree_str_file) and return the dictionary of ancestors Tint.
+	Tint indexes the nodes by integers, Tint[i] = j means j is the ancestor of i.
+	lint is a dictionary returning branch lengths: lint[i,j] = w(i,j) the weight of the edge connecting i and j.
+	nodes_in_order is a list of the nodes in the input tree_str such that T[i]=j means nodes_in_order[j] is an ancestor
+	of nodes_in_order[i]. Nodes are labeled from the leaves up.
+	'''
 	dtree = dendropy.Tree.get(path = tree_str_file, schema="newick", suppress_internal_node_taxa=False,store_tree_weights=True)
 	#Name all the internal nodes
 	nodes = dtree.nodes()
@@ -169,7 +92,11 @@ def parse_tree_file(tree_str_file):
 	return (Tint,lint,nodes_in_order)
 
 def parse_envs(envs, nodes_in_order):
-	#This function will parse the environments and return a dictionary of vectors on the tree basis (nodes_in_order)
+	'''
+	(envs_prob_dict, samples) = parse_envs(envs, nodes_in_order)
+	This function takes an environment envs and the list of nodes nodes_in_order and will return a dictionary envs_prob_dict
+	with keys given by samples. envs_prob_dict[samples[i]] is a probability vector on the basis nodes_in_order denoting for sample i.
+	'''
 	nodes_in_order_dict = dict(zip(nodes_in_order,range(len(nodes_in_order))))
 	for node in envs.keys():
 		if node not in nodes_in_order_dict:
@@ -193,8 +120,16 @@ def parse_envs(envs, nodes_in_order):
 
 
 
-#This will return the EMDUnifrac distance along with the flow
+
 def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
+	'''
+	(Z, F) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q)
+	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
+	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
+	Returns the weighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
+	F[(i,j)] == num means that in the calculation of the Unifrac distance, a total mass of num was moved from the node
+	nodes_in_order[i] to the node nodes_in_order[j].
+	'''
 	num_nodes = len(nodes_in_order)
 	F = dict()
 	G = dict()
@@ -244,6 +179,14 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 
 #This will return the EMDUnifrac distance only
 def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
+	'''
+	Z = EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q)
+	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
+	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
+	Returns the weighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
+	F[(i,j)] == num means that in the calculation of the Unifrac distance, a total mass of num was moved from the node
+	nodes_in_order[i] to the node nodes_in_order[j].
+	'''
 	num_nodes = len(nodes_in_order)
 	Z = 0
 	partial_sums = P - Q
@@ -254,5 +197,87 @@ def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 	return Z
 
 
+#This will return the EMDUnifrac distance only
+def EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q):
+	'''
+	Z = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q)
+	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
+	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
+	Returns the unweighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
+	F[(i,j)] == 1 means that in the calculation of the Unifrac distance, a total mass of 1 was moved from the node
+	nodes_in_order[i] to the node nodes_in_order[j].
+	'''
+	num_nodes = len(nodes_in_order)
+	Z = 0
+	for i in range(num_nodes):
+		if P[i]>0:
+			P[i] = 1
+		if Q[i]>0:
+			Q[i] = 1
+	partial_sums = P - Q
+	for i in range(num_nodes - 1):
+		val = partial_sums[i]
+		partial_sums[Tint[i]] += val
+		Z += lint[i, Tint[i]]*abs(val)
+	return Z
+
+def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
+	'''
+	(Z, F) = EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q)
+	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
+	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
+	Returns the unweighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
+	F[(i,j)] == 1 means that in the calculation of the Unifrac distance, a total mass of 1 was moved from the node
+	nodes_in_order[i] to the node nodes_in_order[j].
+	'''
+	num_nodes = len(nodes_in_order)
+	F = dict()
+	G = dict()
+	Z = 0
+	w = np.zeros(num_nodes)
+	pos = dict()
+	neg = dict()
+	for i in range(num_nodes):
+		pos[i] = set([])
+		neg[i] = set([])
+	for i in range(num_nodes):
+		if P[i] > 0:
+			P[i] = 1
+		if Q[i] > 0:
+			Q[i] = 1
+		if P[i]>0 and Q[i]>0:
+			F[(i,i)] = np.minimum(P[i],Q[i])
+		G[(i,i)] = P[i] - Q[i]
+		if P[i] > Q[i]:
+			pos[i].add(i)
+		elif P[i] < Q[i]:
+			neg[i].add(i)
+		posremove = set()
+		negremove = set()
+		for j in pos[i]:
+			for k in neg[i]:
+				if (j not in posremove) and (k not in negremove):
+					val = np.minimum(G[(i,j)], -G[(i,k)])
+					if val > 0:
+						F[(j,k)] = np.minimum(G[(i,j)], -G[(i,k)])
+						G[(i,j)] = G[(i,j)] - val
+						G[(i,k)] = G[(i,k)] + val
+						Z = Z + (w[j] + w[k])*val
+					if G[(i,j)] == 0:
+						posremove.add(j)
+					if G[(i,k)] == 0:
+						negremove.add(k)
+		pos[i].difference_update(posremove)
+		neg[i].difference_update(negremove)
+		if i < num_nodes-1:
+			for j in pos[i].union(neg[i]):
+					if (Tint[i],j) in G:
+						G[(Tint[i],j)] = G[(Tint[i],j)] + G[(i,j)]
+					else:
+						G[(Tint[i],j)] = G[(i,j)]
+					w[j] = w[j] + lint[i,Tint[i]]
+			pos[Tint[i]] |= pos[i]
+			neg[Tint[i]] |= neg[i]
+	return (Z, F)  # The returned flow is on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
 
