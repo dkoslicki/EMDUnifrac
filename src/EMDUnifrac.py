@@ -285,7 +285,7 @@ def test_parse_tree():
 def test_simulate_data():
 	basis = ['A','B','C','temp0']
 	basis_sim = simulate_data(basis)
-	assert basis_sim.keys() == ['A','B','C','temp0']
+	assert basis_sim.keys().sort() == basis.sort()
 	assert basis_sim['A'].keys() == ['sample1','sample2']
 	assert basis_sim['B'].keys() == ['sample1','sample2']
 	assert basis_sim['C'].keys() == ['sample1','sample2']
@@ -299,8 +299,8 @@ def test_parse_envs():
 		'A':{'sample1':0,'sample2':0},
 		'temp0':{'sample1':0,'sample2':1}}
 	(basis_weighted, samples) = parse_envs(basis_samples,basis) 
-	assert [basis_weighted['sample1'][i] for i in range(3)] == [0.5, 0.5, 0.0, 0.0]
-	assert [basis_weighted['sample2'][i] for i in range(3)] == [0.0, 0.5, 0.0, 0.5]
+	assert [basis_weighted['sample1'][i] for i in range(4)] == [0.5, 0.5, 0.0, 0.0]
+	assert [basis_weighted['sample2'][i] for i in range(4)] == [0.0, 0.5, 0.0, 0.5]
 	assert samples == ['sample1','sample2']
 	
 def test_EMDUnifrac_weighted_flow():
@@ -314,8 +314,8 @@ def test_EMDUnifrac_weighted_flow():
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
 	(Z,F) = EMDUnifrac_weighted_flow(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.25
-	assert F[(2,2)] == .5
-	assert F[(1,4)] == .5
+	assert F[(0,3)] == 0.5
+	assert F[(1,1)] == 0.5
 	assert sum(F.values())
 	
 def test_EMDUnifrac_weighted():
@@ -351,8 +351,8 @@ def test_EMDUnifrac_unweighted_flow():
 		'A':{'sample1':0,'sample2':0},
 		'temp0':{'sample1':0,'sample2':1}}
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
-	(Z,F) = EMDUnifrac_weighted_flow(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
+	(Z,F) = EMDUnifrac_unweighted_flow(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.5
-	assert F[(2,2)] == 1
-	assert F[(1,4)] == 1
+	assert F[(0,3)] == 1
+	assert F[(1,1)] == 1
 	assert sum(F.values()) == 2
