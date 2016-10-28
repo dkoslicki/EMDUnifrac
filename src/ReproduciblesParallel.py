@@ -1,6 +1,6 @@
 # This is the same as Reproducibles.py, but since the timing is embarrassingly parallel, I'll parallelize over the tree size
 # simply to decrease amount of time to wait for results.
-import EMDUnifracPackage as EMDU
+import EMDUnifrac as EMDU
 from cogent.parse.tree import DndParser
 from cogent.maths.unifrac.fast_unifrac import fast_unifrac
 from cogent.maths.unifrac.fast_tree import UniFracTreeNode
