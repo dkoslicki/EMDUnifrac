@@ -172,8 +172,6 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 					w[j] = w[j] + lint[i,Tint[i]]
 			if (i, Tint[i]) in diffab:
 				diffab[(i,Tint[i])] = lint[i,Tint[i]]*abs(diffab[(i,Tint[i])])  # Captures DiffAbund, scales by length of edge JLMC
-			else:
-				diffab[(i,Tint[i])] = 0.0
 			pos[Tint[i]] |= pos[i]
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
@@ -196,7 +194,8 @@ def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 	for i in range(num_nodes - 1):
 		val = partial_sums[i]
 		partial_sums[Tint[i]] += val
-		diffab[(i, Tint[i])] = lint[i, Tint[i]]*abs(val)  # Captures diffab
+		if val != 0:
+			diffab[(i, Tint[i])] = lint[i, Tint[i]]*abs(val)  # Captures diffab
 		Z += lint[i, Tint[i]]*abs(val)
 	return (Z, diffab)
 
@@ -223,7 +222,8 @@ def EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q):
 	for i in range(num_nodes - 1):
 		val = partial_sums[i]
 		partial_sums[Tint[i]] += val
-		diffab[(i, Tint[i])] = lint[i, Tint[i]]*abs(val)  # Captures diffab
+		if val != 0:
+			diffab[(i, Tint[i])] = lint[i, Tint[i]]*abs(val)  # Captures diffab
 		Z += lint[i, Tint[i]]*abs(val)
 	return Z, diffab
 
@@ -287,8 +287,6 @@ def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 					w[j] = w[j] + lint[i,Tint[i]]
 			if (i, Tint[i]) in diffab:
 				diffab[(i,Tint[i])] = lint[i,Tint[i]]*abs(diffab[(i,Tint[i])])  # Captures DiffAbund, scales by length of edge JLMC
-			else:
-				diffab[(i,Tint[i])] = 0.0
 			pos[Tint[i]] |= pos[i]
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
@@ -335,7 +333,7 @@ def test_EMDUnifrac_weighted_flow():
 	assert F[(0,3)] == 0.5
 	assert F[(1,1)] == 0.5
 	assert sum(F.values()) == 1
-	assert diffab == {(1, 2): 0.0, (2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}
+	assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}
 	
 def test_EMDUnifrac_weighted():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'  # there is an internal node (temp0) here.
@@ -348,7 +346,7 @@ def test_EMDUnifrac_weighted():
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
 	(Z, diffab) = EMDUnifrac_weighted(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.25
-	assert diffab == {(1, 2): 0.0, (2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}
+	assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}
 	
 def test_EMDUnifrac_unweighted():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
@@ -361,7 +359,7 @@ def test_EMDUnifrac_unweighted():
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
 	(Z, diffab) = EMDUnifrac_unweighted(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.5
-	assert diffab == {(1, 2): 0.0, (2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
+	assert diffab == {(2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
 	
 def test_EMDUnifrac_unweighted_flow():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
@@ -377,7 +375,7 @@ def test_EMDUnifrac_unweighted_flow():
 	assert F[(0,3)] == 1
 	assert F[(1,1)] == 1
 	assert sum(F.values()) == 2
-	assert diffab == {(1, 2): 0.0, (2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
+	assert diffab == {(2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
 
 
 def run_tests():
