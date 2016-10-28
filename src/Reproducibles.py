@@ -34,12 +34,12 @@ for tree_size in tree_sizes:
 			Q = envs_prob_dict[samples[1]]
 			#EMDUnifrac with flow
 			t0 = timeit.default_timer()
-			(Z, Flow) = EMDU.EMDUnifrac_weighted_flow(T, l, nodes_in_order, P, Q)
+			(Z, Flow, diffab) = EMDU.EMDUnifrac_weighted_flow(T, l, nodes_in_order, P, Q)
 			t1 = timeit.default_timer()
 			EMDUnifrac_flow_times.append(t1-t0)
 			#EMDUnifrac no flow
 			t0 = timeit.default_timer()
-			Z = EMDU.EMDUnifrac_weighted(T, l, nodes_in_order, P, Q)
+			(Z, diffab) = EMDU.EMDUnifrac_weighted(T, l, nodes_in_order, P, Q)
 			t1 = timeit.default_timer()
 			EMDUnifrac_times.append(t1-t0)
 			#FastUnifrac_ weighted
