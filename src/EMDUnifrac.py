@@ -172,7 +172,7 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 	return (Z, F)  # The returned flow is on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
 
-#This will return the EMDUnifrac distance only
+# This will return the EMDUnifrac distance only
 def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 	'''
 	Z = EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q)
@@ -184,15 +184,17 @@ def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 	'''
 	num_nodes = len(nodes_in_order)
 	Z = 0
+	diffab = dict()
 	partial_sums = P - Q
 	for i in range(num_nodes - 1):
 		val = partial_sums[i]
 		partial_sums[Tint[i]] += val
+		diffab[(i, Tint[i])] = lint[i, Tint[i]]*abs(val)  # Captures diffab
 		Z += lint[i, Tint[i]]*abs(val)
-	return Z
+	return (Z, diffab)
 
 
-#This will return the EMDUnifrac distance only
+# This will return the EMDUnifrac distance only
 def EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q):
 	'''
 	Z = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q)
@@ -280,24 +282,24 @@ def test_parse_tree():
 	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
 	assert Tint == {0: 2, 1: 2, 2: 3}
 	assert lint == {(1, 2): 0.1, (2, 3): 0.3, (0, 2): 0.2}
-	assert nodes_in_order == ['C', 'B', 'A', 'temp0']
+	assert nodes_in_order == ['C', 'B', 'A', 'temp0']  # temp0 is the root node
 
 def test_simulate_data():
-	basis = ['A','B','C','temp0']
+	basis = ['A','B','C','temp0']  # temp0 is the root node
 	basis_sim = simulate_data(basis)
 	assert basis_sim.keys().sort() == basis.sort()
 	assert basis_sim['A'].keys() == ['sample1','sample2']
 	assert basis_sim['B'].keys() == ['sample1','sample2']
 	assert basis_sim['C'].keys() == ['sample1','sample2']
-	assert basis_sim['temp0'].keys() == ['sample1','sample2']
+	assert basis_sim['temp0'].keys() == ['sample1','sample2']  # temp0 is the root node
 	
 def test_parse_envs():
-	basis = ['C', 'B', 'A','temp0']
+	basis = ['C', 'B', 'A','temp0']  # temp0 is the root node
 	basis_samples = {
 		'C':{'sample1':1,'sample2':0},
 		'B':{'sample1':1,'sample2':1},
 		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}
+		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node
 	(basis_weighted, samples) = parse_envs(basis_samples,basis) 
 	assert [basis_weighted['sample1'][i] for i in range(4)] == [0.5, 0.5, 0.0, 0.0]
 	assert [basis_weighted['sample2'][i] for i in range(4)] == [0.0, 0.5, 0.0, 0.5]
@@ -310,7 +312,7 @@ def test_EMDUnifrac_weighted_flow():
 		'C':{'sample1':1,'sample2':0},
 		'B':{'sample1':1,'sample2':1},
 		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}
+		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
 	(Z,F) = EMDUnifrac_weighted_flow(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.25
@@ -319,13 +321,13 @@ def test_EMDUnifrac_weighted_flow():
 	assert sum(F.values())
 	
 def test_EMDUnifrac_weighted():
-	tree_str = '((B:0.1,C:0.2)A:0.3);'
+	tree_str = '((B:0.1,C:0.2)A:0.3);'  # there is an internal node (temp0) here.
 	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
 	nodes_samples = {
 		'C':{'sample1':1,'sample2':0},
 		'B':{'sample1':1,'sample2':1},
 		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}
+		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node
 	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order) 
 	Z = EMDUnifrac_weighted(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
 	assert Z == 0.25
@@ -356,3 +358,13 @@ def test_EMDUnifrac_unweighted_flow():
 	assert F[(0,3)] == 1
 	assert F[(1,1)] == 1
 	assert sum(F.values()) == 2
+
+
+def run_tests():
+	test_parse_tree()
+	test_simulate_data()
+	test_parse_envs()
+	test_EMDUnifrac_weighted_flow()
+	test_EMDUnifrac_weighted()
+	test_EMDUnifrac_unweighted()
+	test_EMDUnifrac_unweighted_flow()
