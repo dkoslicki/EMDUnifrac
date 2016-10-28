@@ -12,9 +12,9 @@ from itertools import *
 from multiprocessing import Pool, freeze_support
 
 num_threads = 47
-tree_sizes = range(10,110010,5000)  # Number of tree leaves to iterate over
-num_trees = 10
-num_samples = 10
+tree_sizes = range(10,100000,5000)  # Number of tree leaves to iterate over
+num_trees = 5
+num_samples = 5
 
 
 def timing_star(arg):
