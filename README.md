@@ -47,19 +47,19 @@ This function will parse a Newick tree string and return the dictionary of ances
 `lint` is a dictionary returning branch lengths: `lint[(i,j)]` is the weight of the edge connecting `i` and `j`.
 `nodes_in_order` is a list of the nodes in the input `tree_str` such that `Tint[i]=j` means `nodes_in_order[j]` is an ancestor of `nodes_in_order[i]`. Nodes are labeled from the leaves up.
 
-### parse_tree_file ###
+#### parse_tree_file ####
 `(Tint, lint, nodes_in_order) = parse_tree(tree_str_file)`.
 
 Same as `parse_tree` but for reading in a Newick tree from a file `tree_str_file` instead of string.
 
-### parse_envs ###
+#### parse_envs ####
 `(envs_prob_dict, samples) = parse_envs(envs, nodes_in_order)`.
 
 This function takes an environment `envs` and the list of nodes `nodes_in_order` and will return a dictionary `envs_prob_dict`
 with keys given by samples. `envs_prob_dict[samples[i]]` is a probability vector on the basis `nodes_in_order` denoting abundances on the taxonomic tree for `samples[i]`.
 
-The input data structure `envs` is a dictionary of dictionaries. The keys are elements of `nodes_in_order` and the values are dictionaries with *exactly two keys* `samples[0]` and `samples[1]`.
-The values are the raw (or normalized) abundance of `samples[i]` assigned to the tree node `nodes_in_order[j]`.
+The input data structure `envs` is a dictionary of dictionaries. The keys are elements of `nodes_in_order` and the values are dictionaries with *exactly two keys* `samples[i]` and `samples[j]`.
+The values are the raw (or normalized) abundance of `samples[i]` assigned to a tree node given in `nodes_in_order`.
 
 For example, the following environment:
 ```python
@@ -73,6 +73,17 @@ envs = {
 represents two samples `sample1` and `sample2` where in `sample1`, one read respectively has been classified to the tree nodes `C` and `B`.
 In `sample2`, one read respectively has been classified to the tree node `B` and the root node `temp0` (representing an unclassified read). This root node
 is not contained in the Newick string `tree_str` but is automatically created by `parse_tree` and returned in `nodes_in_order`.
+
+#### EMDUnifrac_weighted_flow ####
+`(Z, F, diffab) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q)`.
+This function takes the ancestor dictionary `Tint`, the lengths dictionary `lint`, the basis `nodes_in_order`
+and two probability vectors `P` and `Q` (typically `P = envs_prob_dict[samples[i]]`, `Q = envs_prob_dict[samples[j]])`.
+Returns the weighted Unifrac distance `Z` (a scalar), the flow `F`, and the differential abundance vector `diffab`.
+The flow `F` is a dictionary with tuple keys of the form `(i, j)` for `i,j` in `Tint` where `F[(i, j)] == num` means that in the calculation of the
+Unifrac distance, a total mass of `num` was moved from the node `nodes_in_order[i]` to the node `nodes_in_order[j]`.
+The differential abundance vector `diffab` is a dictionary with tuple keys using elements of `Tint` and values
+`diffab[(i, j)]` equal to the signed difference of abundance between the two samples restricted to the sub-tree
+defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
 
 ## Authors ##
 David Koslicki <david.koslicki@math.oregonstate.edu>
