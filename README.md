@@ -12,10 +12,17 @@ This method utilizes the Earth Mover's distance and details about the algorithm 
 ## Usage ##
 Efforts have been made to make the API similar to that of the PyCogent implementation of FastUnifrac.
 
+The basic workflow is:
++ Parse an input taxonomic treen (in Newick format) using `(Tint, lint, nodes_in_order) = parse_tree(tree_str)`.
++ Parse input taxonomic classifications (called "environments") using `(nodes_weighted, samples) = parse_envs(input_environments, nodes_in_order)`.
++ Run a weighted/unweighted version of EMDUnifrac with/without the flow returned. For example: `(unifrac_value, flow, differential_abundance_vector) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, input_environments['sample1'], input_environments['sample2'])`.
 
 
 
-
-## Usage ##
+## Authors ##
 David Koslicki [david.koslicki@math.oregonstate.edu](david.koslicki@math.oregonstate.edu)
 Jason McClelland [mcclellj@science.oregonstate.edu](mcclellj@science.oregonstate.edu)
+
+
+## License ##
+This project is released under the GPL-3 License. Please view the [LICENSE](https://github.com/dkoslicki/EMDUnifrac/blob/master/LICENSE) file for more details.
