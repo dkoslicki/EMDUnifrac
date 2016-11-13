@@ -75,7 +75,10 @@ In `sample2`, one read respectively has been classified to the tree node `B` and
 is not contained in the Newick string `tree_str` but is automatically created by `parse_tree` and returned in `nodes_in_order`.
 
 #### EMDUnifrac_weighted_flow ####
+Weighted version of Unifrac that returns the flow.
+
 `(Z, F, diffab) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q)`.
+
 This function takes the ancestor dictionary `Tint`, the lengths dictionary `lint`, the basis `nodes_in_order`
 and two probability vectors `P` and `Q` (typically `P = envs_prob_dict[samples[i]]`, `Q = envs_prob_dict[samples[j]])`.
 Returns the weighted Unifrac distance `Z` (a scalar), the flow `F`, and the differential abundance vector `diffab`.
@@ -84,6 +87,45 @@ Unifrac distance, a total mass of `num` was moved from the node `nodes_in_order[
 The differential abundance vector `diffab` is a dictionary with tuple keys using elements of `Tint` and values
 `diffab[(i, j)]` equal to the signed difference of abundance between the two samples restricted to the sub-tree
 defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
+
+#### EMDUnifrac_weighted ####
+Weighted version of Unifrac, does not return the flow (faster execution time than when returning the flow).
+
+`(Z, diffab) = EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q)`.
+
+This function takes the ancestor dictionary `Tint`, the lengths dictionary `lint`, the basis `nodes_in_order`
+and two probability vectors `P` and `Q` (typically `P = envs_prob_dict[samples[i]]`, `Q = envs_prob_dict[samples[j]])`.
+Returns the weighted Unifrac distance `Z` (a scalar), and the differential abundance vector `diffab`.
+The differential abundance vector `diffab` is a dictionary with tuple keys using elements of `Tint` and values
+`diffab[(i, j)]` equal to the signed difference of abundance between the two samples restricted to the sub-tree
+defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
+
+#### EMDUnifrac_unweighted_flow ####
+Unweighted version of Unifrac, returns the flow.
+
+`(Z, F, diffab) = EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q)`.
+
+This function takes the ancestor dictionary `Tint`, the lengths dictionary `lint`, the basis `nodes_in_order`
+and two probability vectors `P` and `Q` (typically `P = envs_prob_dict[samples[i]]`, `Q = envs_prob_dict[samples[j]])`.
+Returns the weighted Unifrac distance `Z` (a scalar), the flow `F`, and the differential abundance vector `diffab`.
+The flow `F` is a dictionary with tuple keys of the form `(i, j)` for `i,j` in `Tint` where `F[(i, j)] == num` means that in the calculation of the
+Unifrac distance, a total mass of `num` was moved from the node `nodes_in_order[i]` to the node `nodes_in_order[j]`.
+The differential abundance vector `diffab` is a dictionary with tuple keys using elements of `Tint` and values
+`diffab[(i, j)]` equal to the signed difference of abundance between the two samples restricted to the sub-tree
+defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
+
+#### EMDUnifrac_unweighted ####
+Unweighted version of Unifrac, does not return the flow (faster execution time than when returning the flow).
+
+`(Z, diffab) = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q)`.
+
+This function takes the ancestor dictionary `Tint`, the lengths dictionary `lint`, the basis `nodes_in_order`
+and two probability vectors `P` and `Q` (typically `P = envs_prob_dict[samples[i]]`, `Q = envs_prob_dict[samples[j]])`.
+Returns the weighted Unifrac distance `Z` (a scalar), and the differential abundance vector `diffab`.
+The differential abundance vector `diffab` is a dictionary with tuple keys using elements of `Tint` and values
+`diffab[(i, j)]` equal to the signed difference of abundance between the two samples restricted to the sub-tree
+defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
+
 
 ## Authors ##
 David Koslicki <david.koslicki@math.oregonstate.edu>
