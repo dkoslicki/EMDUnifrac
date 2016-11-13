@@ -7,8 +7,8 @@ def parse_tree(tree_str):
 	(Tint,lint,nodes_in_order) = parse_tree(tree_str) 
 	This function will parse a newick tree string and return the dictionary of ancestors Tint.
 	Tint indexes the nodes by integers, Tint[i] = j means j is the ancestor of i.
-	lint is a dictionary returning branch lengths: lint[i,j] = w(i,j) the weight of the edge connecting i and j.
-	nodes_in_order is a list of the nodes in the input tree_str such that T[i]=j means nodes_in_order[j] is an ancestor
+	lint is a dictionary returning branch lengths: lint[(i,j)] = w(i,j) the weight of the edge connecting i and j.
+	nodes_in_order is a list of the nodes in the input tree_str such that Tint[i]=j means nodes_in_order[j] is an ancestor
 	of nodes_in_order[i]. Nodes are labeled from the leaves up.
 	'''
 	dtree = dendropy.Tree.get(data=tree_str, schema="newick", suppress_internal_node_taxa=False,store_tree_weights=True)
