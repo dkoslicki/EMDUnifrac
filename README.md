@@ -8,3 +8,14 @@ This method utilizes the Earth Mover's distance and details about the algorithm 
 + numpy 
 + [ete2](http://etetoolkit.org/download/) (only for the speed comparison to Unifrac)
 + [PyCogent](https://github.com/pycogent/pycogent) (only for the speed comparison to Unifrac)
+
+## Usage ##
+Efforts have been made to make the API similar to that of the PyCogent implementation of FastUnifrac.
+
+
+
+
+
+## Usage ##
+David Koslicki [david.koslicki@math.oregonstate.edu](david.koslicki@math.oregonstate.edu)
+Jason McClelland [mcclellj@science.oregonstate.edu](mcclellj@science.oregonstate.edu)
