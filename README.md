@@ -38,8 +38,8 @@ assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}  # d
 ```
 
 ## Authors ##
-David Koslicki [david.koslicki@math.oregonstate.edu](david.koslicki@math.oregonstate.edu)
-Jason McClelland [mcclellj@science.oregonstate.edu](mcclellj@science.oregonstate.edu)
+David Koslicki <david.koslicki@math.oregonstate.edu>
+Jason McClelland <mcclellj@science.oregonstate.edu>
 
 
 ## License ##
