@@ -6,6 +6,7 @@ This method utilizes the Earth Mover's distance and details about the algorithm 
 ## Requirements ##
 + [dendropy](http://www.dendropy.org/)
 + numpy 
++ matplotlib (for plotting)
 + [ete2](http://etetoolkit.org/download/) (only for the speed comparison to Unifrac)
 + [PyCogent](https://github.com/pycogent/pycogent) (only for the speed comparison to Unifrac)
 
@@ -37,6 +38,9 @@ assert F[(1,1)] == 0.5
 assert sum(F.values()) == 1
 assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}  # diffab is the differential abundance vector, also in a sparse matrix format: a dictionary with tuple keys using elements of Tint and values diffab[(i, j)] equal to the signed difference of abundance between the two samples restricted to the sub-tree defined by nodes_in_order(i) and weighted by the edge length lint[(i,j)].
 ```
+
+An example ([Example.py](https://github.com/dkoslicki/EMDUnifrac/blob/master/src/Example.py)) is included using real biological data (restricted to the phylum 
+level for simplicity).
 
 ### Description of formats and syntax ###
 #### parse_tree ####
@@ -129,6 +133,7 @@ defined by `nodes_in_order[i]` and weighted by the edge length `lint[(i, j)]`.
 
 ## Authors ##
 David Koslicki <david.koslicki@math.oregonstate.edu>
+
 Jason McClelland <mcclellj@science.oregonstate.edu>
 
 
