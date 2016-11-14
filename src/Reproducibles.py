@@ -59,22 +59,3 @@ np.savetxt('EMDU_flow_mean_times.txt', mean_EMDUnifrac_flow_times, delimiter=','
 np.savetxt('FastUnifrac__mean_times.txt', mean_FastUnifrac_times, delimiter=',')
 
 
-##########
-# Here is the real data that is analyzed in the paper:
-# tree_str = "(Acidobacteria:0.03031,Actinobacteria:0.01878,Bacteroidetes:0.00530,Chlorobi:0.01402,Fusobacteria:0.10722,Lentisphaerae:0.04241,Proteobacteria:0.01667,Spirochaetes:0.03298,Synergistetes:0.03566,Tenericutes:0.00230,Verrucomicrobia:0.03222)Bacteria;"
-# phyla=["Acidobacteria","Actinobacteria","Bacteroidetes","Chlorobi","Firmicutes","Fusobacteria","Lentisphaerae","Proteobacteria","SR1","Spirochaetes","Synergistetes","TM7","Tenericutes","Verrucomicrobia"]
-# healthy = np.loadtxt("/Users/dkoslicki/Dropbox/EMDUnifrac/RealData/HealthyTotals.txt")
-# UC = np.loadtxt("/Users/dkoslicki/Dropbox/EMDUnifrac/RealData/UCTotals.txt")
-# healthy = np.array([5.29000000e-04, 1.19146400e+00, 2.46148900e+01, 5.29000000e-04, 1.85075170e+01, 1.49653000e-01, 3.41100000e-03, 4.30437200e+00, 0.00000000e+00, 1.77374000e-01, 8.38000000e-03, 0.00000000e+00, 4.18820000e-02, 0.00000000e+00])  # obtained via np.loadtxt("/Users/dkoslicki/Dropbox/EMDUnifrac/RealData/HealthyTotals.txt")
-# UC = np.array([ 0.00000000e+00, 5.64607000e-01, 6.00750200e+00, 0.00000000e+00, 7.68366300e+00, 5.19120000e-02, 8.80000000e-04, 1.64073200e+00, 1.57500000e-03, 1.57500000e-03, 0.00000000e+00, 0.00000000e+00, 4.75550000e-02, 0.00000000e+00])   # obtained via np.loadtxt("/Users/dkoslicki/Dropbox/EMDUnifrac/RealData/UCTotals.txt")
-# envs = dict()
-# for i in range(len(phyla)):
-# 	envs[phyla[i]] = dict()
-# 	envs[phyla[i]]["healthy"] = healthy[i]
-# 	envs[phyla[i]]["UC"] = UC[i]
-# (Tint,lint,nodes_in_order) = EMDU.parse_tree(tree_str)
-# (nodes_weighted, samples) = EMDU.parse_envs(envs,nodes_in_order)
-# (Z, diffab) = EMDU.EMDUnifrac_weighted(Tint,lint,nodes_in_order,nodes_weighted[samples[0]],nodes_weighted[samples[1]])
-
-
-
