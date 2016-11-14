@@ -1,5 +1,6 @@
 import numpy as np
 import dendropy
+import matplotlib.pyplot as plt
 
 
 def parse_tree(tree_str):
@@ -112,8 +113,6 @@ def parse_envs(envs, nodes_in_order):
 	for sample in samples:
 		envs_prob_dict[sample] = envs_prob_dict[sample]/envs_prob_dict[sample].sum()
 	return (envs_prob_dict, samples)
-
-
 
 
 def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
@@ -231,6 +230,7 @@ def EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q):
 		Z += lint[i, Tint[i]]*abs(val)
 	return Z, diffab
 
+
 def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 	'''
 	(Z, F) = EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q)
@@ -294,6 +294,68 @@ def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 			pos[Tint[i]] |= pos[i]
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
+
+
+def plot_diffab(nodes_in_order, diffab, P_label, Q_label):
+	'''
+	plot_diffab(nodes_in_order, diffab, P_label, Q_label)
+	Plots the differential abundance vector.
+	:param nodes_in_order: list returned from parse_envs
+	:param diffab: differential abundance vector (returned from one flavor of EMDUnifrac)
+	:param P_label: label corresponding to the sample name for P (e.g. when calling EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q))
+	:param Q_label: label corresponding to the sample name for P (e.g. when calling EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q))
+	:return: None (makes plot)
+	'''
+	x = range(len(nodes_in_order))
+	y = np.zeros(len(nodes_in_order))
+	keys = diffab.keys()
+	for i in range(len(nodes_in_order)):
+		for key in keys:
+			if key[0] == i:
+				y[i] = diffab[key]
+
+	pos_loc = [x[i] for i in range(len(y)) if y[i]>0]
+	neg_loc = [x[i] for i in range(len(y)) if y[i]<0]
+	zero_loc = [x[i] for i in range(len(y)) if y[i]==0]
+
+	pos_val = [y[i] for i in range(len(y)) if y[i]>0]
+	neg_val = [y[i] for i in range(len(y)) if y[i]<0]
+	zero_val = [y[i] for i in range(len(y)) if y[i]==0]
+
+	fig, ax = plt.subplots()
+
+	markerline, stemlines, baseline = ax.stem(neg_loc, neg_val)
+	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
+	plt.setp(markerline, 'color','r')
+	for i in range(len(neg_loc)):
+		plt.setp(stemlines[i], 'linewidth', 3)
+		plt.setp(stemlines[i], 'color', 'r')
+
+	markerline, stemlines, baseline = ax.stem(pos_loc, pos_val)
+	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
+	plt.setp(markerline, 'color','b')
+	for i in range(len(pos_loc)):
+		plt.setp(stemlines[i], 'linewidth', 3)
+		plt.setp(stemlines[i], 'color', 'b')
+
+	markerline, stemlines, baseline = ax.stem(zero_loc, zero_val)
+	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
+	plt.setp(markerline, 'color','k')
+	for i in range(len(zero_loc)):
+		plt.setp(stemlines[i], 'linewidth', 3)
+		plt.setp(stemlines[i], 'color', 'k')
+
+	plt.ylabel('DiffAbund', fontsize=16)
+	plt.gcf().subplots_adjust(right=0.93, left=0.15)
+	plt.xticks(x, nodes_in_order, rotation='vertical', fontsize=14)
+	plt.subplots_adjust(bottom=0.3, top=.93)
+	plt.text(x[-1]+0.5, max(y), P_label, rotation=90, horizontalalignment='center', verticalalignment='top', multialignment='center', color='b', fontsize=14)
+	plt.text(x[-1]+0.5, min(y), Q_label, rotation=90, horizontalalignment='center', verticalalignment='bottom', multialignment='center', color='r', fontsize=14)
+	plt.show()
+
+
+#########################################
+# Tests
 
 def test_parse_tree():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
