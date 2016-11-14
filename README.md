@@ -134,3 +134,6 @@ Jason McClelland <mcclellj@science.oregonstate.edu>
 
 ## License ##
 This project is released under the GPL-3 License. Please view the [LICENSE](https://github.com/dkoslicki/EMDUnifrac/blob/master/LICENSE) file for more details.
+
+## References ##
+*To do*
