@@ -183,7 +183,7 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 # This will return the EMDUnifrac distance only
 def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 	'''
-	Z = EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q)
+	(Z, diffab) = EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q)
 	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
 	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
 	Returns the weighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
@@ -206,7 +206,7 @@ def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
 # This will return the EMDUnifrac distance only
 def EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q):
 	'''
-	Z = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q)
+	(Z, diffab) = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, P, Q)
 	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
 	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
 	Returns the unweighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
@@ -353,6 +353,41 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label):
 	plt.text(x[-1]+0.5, min(y), Q_label, rotation=90, horizontalalignment='center', verticalalignment='bottom', multialignment='center', color='r', fontsize=14)
 	plt.show()
 
+def EMDUnifrac_weighted_plain(ancestors, edge_lengths, nodes_in_order, P, Q):
+	'''
+	Z = EMDUnifrac_weighted(ancestors, edge_lengths, nodes_in_order, P, Q)
+	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
+	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
+	Returns the weighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
+	F[(i,j)] == num means that in the calculation of the Unifrac distance, a total mass of num was moved from the node
+	nodes_in_order[i] to the node nodes_in_order[j].
+	'''
+	num_nodes = len(nodes_in_order)
+	Z = 0
+	partial_sums = P - Q
+	for i in range(num_nodes - 1):
+		val = partial_sums[i]
+		partial_sums[ancestors[i]] += val
+		Z += edge_lengths[i, ancestors[i]]*abs(val)
+	return Z
+
+
+def EMDUnifrac_group(ancestors, edge_lengths, nodes_in_order, rel_abund):
+	num_nodes = len(nodes_in_order)
+	num_samples = len(rel_abund)
+	Z = np.zeros((num_samples, num_samples))
+	partial_sums = np.zeros((num_samples, num_samples, num_nodes))
+	for i in range(num_samples):
+		for j in range(num_samples):
+			partial_sums[i, j] = rel_abund[i] - rel_abund[j]
+	for n in range(num_nodes - 1):
+		for i in range(num_samples):
+			for j in range(i, num_samples):
+				val = partial_sums[i, j, n]
+				partial_sums[i, j, ancestors[n]] += val
+				Z[i, j] += edge_lengths[n, ancestors[n]] * abs(val)
+	Z = Z + np.transpose(Z)
+	return Z
 
 #########################################
 # Tests
