@@ -364,15 +364,22 @@ def EMDUnifrac_weighted_plain(ancestors, edge_lengths, nodes_in_order, P, Q):
 	'''
 	num_nodes = len(nodes_in_order)
 	Z = 0
+	eps = 1e-8
 	partial_sums = P - Q
+	total_mass = 1
 	for i in range(num_nodes - 1):
 		val = partial_sums[i]
-		partial_sums[ancestors[i]] += val
-		Z += edge_lengths[i, ancestors[i]]*abs(val)
+		if abs(val) > eps:  # if the value is big enough to care about (i.e. ignore zeros)
+			#if np.sign(val) * np.sign(partial_sums[ancestors[i]]) == -1:  # if mass is getting destroyed
+				#total_mass -= abs(val + partial_sums[ancestors[i]])  # keep track of how much was lost
+				#print(total_mass)  # Can use this to break once the change is small enough
+			partial_sums[ancestors[i]] += val
+			Z += edge_lengths[i, ancestors[i]]*abs(val)
 	return Z
 
 
 def EMDUnifrac_group(ancestors, edge_lengths, nodes_in_order, rel_abund):
+	eps = 1e-8
 	num_nodes = len(nodes_in_order)
 	num_samples = len(rel_abund)
 	Z = np.zeros((num_samples, num_samples))
@@ -384,8 +391,9 @@ def EMDUnifrac_group(ancestors, edge_lengths, nodes_in_order, rel_abund):
 		for i in range(num_samples):
 			for j in range(i, num_samples):
 				val = partial_sums[i, j, n]
-				partial_sums[i, j, ancestors[n]] += val
-				Z[i, j] += edge_lengths[n, ancestors[n]] * abs(val)
+				if abs(val) > eps:  # only do the work if it's big enough
+					partial_sums[i, j, ancestors[n]] += val
+					Z[i, j] += edge_lengths[n, ancestors[n]] * abs(val)
 	Z = Z + np.transpose(Z)
 	return Z
 
