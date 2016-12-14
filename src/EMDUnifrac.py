@@ -325,6 +325,10 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=True, thres
 	pos_loc = [x[i] for i in range(len(y)) if y[i] > thresh]
 	neg_loc = [x[i] for i in range(len(y)) if y[i] < -thresh]
 	zero_loc = [x[i] for i in range(len(y)) if -thresh <= y[i] <= thresh]
+	if not pos_loc:
+		raise Exception('Threshold too high! Please lower and try again.')
+	if not neg_loc:
+		raise Exception('Threshold too high! Please lower and try again.')
 
 	pos_val = [y[i] for i in range(len(y)) if y[i] > thresh]
 	neg_val = [y[i] for i in range(len(y)) if y[i] < -thresh]
