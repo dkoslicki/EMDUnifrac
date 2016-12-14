@@ -406,8 +406,8 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=True, thres
 		plt.xticks(range(len(pos_loc_adj + neg_loc_adj)), tick_names, rotation='vertical', fontsize=14)
 
 	plt.subplots_adjust(bottom=0.3, top=.93)
-	plt.text(x[-1]+0.5, max(y), P_label, rotation=90, horizontalalignment='center', verticalalignment='top', multialignment='center', color='b', fontsize=14)
-	plt.text(x[-1]+0.5, min(y), Q_label, rotation=90, horizontalalignment='center', verticalalignment='bottom', multialignment='center', color='r', fontsize=14)
+	plt.text(plt.xticks()[0][-1]+0.5, max(y), P_label, rotation=90, horizontalalignment='center', verticalalignment='top', multialignment='center', color='b', fontsize=14)
+	plt.text(plt.xticks()[0][-1]+0.5, min(y), Q_label, rotation=90, horizontalalignment='center', verticalalignment='bottom', multialignment='center', color='r', fontsize=14)
 	plt.show()
 
 def EMDUnifrac_weighted_plain(ancestors, edge_lengths, nodes_in_order, P, Q):
