@@ -45,7 +45,7 @@ def parse_tree_file(tree_str_file, suppress_internal_node_taxa=False):
 	nodes_in_order is a list of the nodes in the input tree_str such that T[i]=j means nodes_in_order[j] is an ancestor
 	of nodes_in_order[i]. Nodes are labeled from the leaves up.
 	'''
-	dtree = dendropy.Tree.get(path = tree_str_file, schema="newick", suppress_internal_node_taxa=suppress_internal_node_taxa, store_tree_weights=True)
+	dtree = dendropy.Tree.get(path=tree_str_file, schema="newick", suppress_internal_node_taxa=suppress_internal_node_taxa, store_tree_weights=True)
 	#Name all the internal nodes
 	nodes = dtree.nodes()
 	i=0
@@ -299,7 +299,7 @@ def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
 
-def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=False, thresh=0):
+def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=True, thresh=0):
 	'''
 	plot_diffab(nodes_in_order, diffab, P_label, Q_label)
 	Plots the differential abundance vector.
@@ -318,7 +318,7 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=False, thre
 	#	for key in keys:
 	#		if key[0] == i:
 	#			y[i] = diffab[key]
-	# Much faster way to comput this
+	# Much faster way to compute this
 	for key in keys:
 		y[key[0]] = diffab[key]
 
@@ -330,16 +330,58 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=False, thre
 	neg_val = [y[i] for i in range(len(y)) if y[i] < -thresh]
 	zero_val = [y[i] for i in range(len(y)) if -thresh <= y[i] <= thresh]
 
+	# The following is to get the indicies in order. Basically, I iterate down both pos_loc and neg_loc simultaneously
+	# and create new lists (pos_loc_adj and neg_loc_adj) that are in the same order as pos_loc and neg_loc, but whose
+	# union of indicies is equal to range(len(pos_loc + neg_loc)). Simply to make things pretty
+	if plot_zeros:
+		pos_loc_adj = pos_loc
+		neg_loc_adj = neg_loc
+		zero_loc_adj = zero_loc
+	else:
+		pos_loc_adj = []
+		neg_loc_adj = []
+		tick_names = []
+
+		# rename the indicies so they are increasing by 1
+		pos_ind = 0
+		neg_ind = 0
+		it = 0
+		while pos_ind < len(pos_loc) or neg_ind < len(neg_loc):
+			if pos_ind >= len(pos_loc):
+				neg_loc_adj.append(it)
+				tick_names.append(nodes_in_order[neg_loc[neg_ind]])
+				it += 1
+				neg_ind += 1
+			elif neg_ind >= len(pos_loc):
+				pos_loc_adj.append(it)
+				tick_names.append(nodes_in_order[pos_loc[pos_ind]])
+				it += 1
+				pos_ind += 1
+			elif pos_loc[pos_ind] < neg_loc[neg_ind]:
+				pos_loc_adj.append(it)
+				tick_names.append(nodes_in_order[pos_loc[pos_ind]])
+				it += 1
+				pos_ind += 1
+			elif pos_loc[pos_ind] > neg_loc[neg_ind]:
+				neg_loc_adj.append(it)
+				tick_names.append(nodes_in_order[neg_loc[neg_ind]])
+				it += 1
+				neg_ind +=1
+			else:
+				print('Something went wrong')
+				break
+
+
 	fig, ax = plt.subplots()
 
-	markerline, stemlines, baseline = ax.stem(neg_loc, neg_val)
+	markerline, stemlines, baseline = ax.stem(neg_loc_adj, neg_val)
 	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
 	plt.setp(markerline, 'color','r')
 	for i in range(len(neg_loc)):
 		plt.setp(stemlines[i], 'linewidth', 3)
 		plt.setp(stemlines[i], 'color', 'r')
 
-	markerline, stemlines, baseline = ax.stem(pos_loc, pos_val)
+	markerline, stemlines, baseline = ax.stem(pos_loc_adj, pos_val)
 	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
 	plt.setp(markerline, 'color','b')
 	for i in range(len(pos_loc)):
@@ -360,8 +402,8 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=False, thre
 	if plot_zeros:
 		plt.xticks(x, nodes_in_order, rotation='vertical', fontsize=14)
 	else:
-		tick_names = [nodes_in_order[i] for i in pos_loc] + [nodes_in_order[i] for i in neg_loc]
-		plt.xticks(pos_loc + neg_loc, tick_names, rotation='vertical', fontsize=14)
+		#tick_names = [nodes_in_order[i] for i in pos_loc] + [nodes_in_order[i] for i in neg_loc]  # Don't need this with new code
+		plt.xticks(range(len(pos_loc_adj + neg_loc_adj)), tick_names, rotation='vertical', fontsize=14)
 
 	plt.subplots_adjust(bottom=0.3, top=.93)
 	plt.text(x[-1]+0.5, max(y), P_label, rotation=90, horizontalalignment='center', verticalalignment='top', multialignment='center', color='b', fontsize=14)
