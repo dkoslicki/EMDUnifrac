@@ -352,7 +352,7 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=True, thres
 				tick_names.append(nodes_in_order[neg_loc[neg_ind]])
 				it += 1
 				neg_ind += 1
-			elif neg_ind >= len(pos_loc):
+			elif neg_ind >= len(neg_loc):
 				pos_loc_adj.append(it)
 				tick_names.append(nodes_in_order[pos_loc[pos_ind]])
 				it += 1
