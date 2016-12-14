@@ -64,7 +64,10 @@ def parse_tree_file(tree_str_file, suppress_internal_node_taxa=False):
 		parent = node.parent_node
 		if parent != None:
 			Tint[i] = nodes_to_index[parent.taxon.label]
-			lint[nodes_to_index[node.taxon.label], nodes_to_index[parent.taxon.label]] = node.edge.length
+			if isinstance(node.edge.length, float):
+				lint[nodes_to_index[node.taxon.label], nodes_to_index[parent.taxon.label]] = node.edge.length
+			else:
+				lint[nodes_to_index[node.taxon.label], nodes_to_index[parent.taxon.label]] = 0.0
 	return (Tint,lint,nodes_in_order)
 
 def simulate_data(basis):
