@@ -299,7 +299,7 @@ def EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, P, Q):
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
 
-def plot_diffab(nodes_in_order, diffab, P_label, Q_label):
+def plot_diffab(nodes_in_order, diffab, P_label, Q_label, plot_zeros=False, thresh=0):
 	'''
 	plot_diffab(nodes_in_order, diffab, P_label, Q_label)
 	Plots the differential abundance vector.
@@ -307,23 +307,28 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label):
 	:param diffab: differential abundance vector (returned from one flavor of EMDUnifrac)
 	:param P_label: label corresponding to the sample name for P (e.g. when calling EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q))
 	:param Q_label: label corresponding to the sample name for P (e.g. when calling EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q))
+	:param plot_zeros: flag (either True or False) that specifies if the zero locations should be plotted. Warning, if your tree is large and plot_zeros=True, this can cause a crash.
+	:param thresh: only plot those parts of the diffab vector that are above thresh, specify everything else as zero
 	:return: None (makes plot)
 	'''
 	x = range(len(nodes_in_order))
 	y = np.zeros(len(nodes_in_order))
 	keys = diffab.keys()
-	for i in range(len(nodes_in_order)):
-		for key in keys:
-			if key[0] == i:
-				y[i] = diffab[key]
+	#for i in range(len(nodes_in_order)):
+	#	for key in keys:
+	#		if key[0] == i:
+	#			y[i] = diffab[key]
+	# Much faster way to comput this
+	for key in keys:
+		y[key[0]] = diffab[key]
 
-	pos_loc = [x[i] for i in range(len(y)) if y[i]>0]
-	neg_loc = [x[i] for i in range(len(y)) if y[i]<0]
-	zero_loc = [x[i] for i in range(len(y)) if y[i]==0]
+	pos_loc = [x[i] for i in range(len(y)) if y[i] > thresh]
+	neg_loc = [x[i] for i in range(len(y)) if y[i] < -thresh]
+	zero_loc = [x[i] for i in range(len(y)) if -thresh <= y[i] <= thresh]
 
-	pos_val = [y[i] for i in range(len(y)) if y[i]>0]
-	neg_val = [y[i] for i in range(len(y)) if y[i]<0]
-	zero_val = [y[i] for i in range(len(y)) if y[i]==0]
+	pos_val = [y[i] for i in range(len(y)) if y[i] > thresh]
+	neg_val = [y[i] for i in range(len(y)) if y[i] < -thresh]
+	zero_val = [y[i] for i in range(len(y)) if -thresh <= y[i] <= thresh]
 
 	fig, ax = plt.subplots()
 
@@ -341,16 +346,23 @@ def plot_diffab(nodes_in_order, diffab, P_label, Q_label):
 		plt.setp(stemlines[i], 'linewidth', 3)
 		plt.setp(stemlines[i], 'color', 'b')
 
-	markerline, stemlines, baseline = ax.stem(zero_loc, zero_val)
-	plt.setp(baseline, 'color', 'k', 'linewidth', 1)
-	plt.setp(markerline, 'color','k')
-	for i in range(len(zero_loc)):
-		plt.setp(stemlines[i], 'linewidth', 3)
-		plt.setp(stemlines[i], 'color', 'k')
+	if plot_zeros:
+		markerline, stemlines, baseline = ax.stem(zero_loc, zero_val)
+		plt.setp(baseline, 'color', 'k', 'linewidth', 1)
+		plt.setp(markerline, 'color','k')
+		for i in range(len(zero_loc)):
+			plt.setp(stemlines[i], 'linewidth', 3)
+			plt.setp(stemlines[i], 'color', 'k')
 
 	plt.ylabel('DiffAbund', fontsize=16)
 	plt.gcf().subplots_adjust(right=0.93, left=0.15)
-	plt.xticks(x, nodes_in_order, rotation='vertical', fontsize=14)
+	# If you want the zeros plotted, label EVERYTHING, otherwise just label the things that are there...
+	if plot_zeros:
+		plt.xticks(x, nodes_in_order, rotation='vertical', fontsize=14)
+	else:
+		tick_names = [nodes_in_order[i] for i in pos_loc] + [nodes_in_order[i] for i in neg_loc]
+		plt.xticks(pos_loc + neg_loc, tick_names, rotation='vertical', fontsize=14)
+
 	plt.subplots_adjust(bottom=0.3, top=.93)
 	plt.text(x[-1]+0.5, max(y), P_label, rotation=90, horizontalalignment='center', verticalalignment='top', multialignment='center', color='b', fontsize=14)
 	plt.text(x[-1]+0.5, min(y), Q_label, rotation=90, horizontalalignment='center', verticalalignment='bottom', multialignment='center', color='r', fontsize=14)
