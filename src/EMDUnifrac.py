@@ -1,6 +1,7 @@
 import numpy as np
 import dendropy
 import matplotlib.pyplot as plt
+import warnings
 
 
 def parse_tree(tree_str):
@@ -114,6 +115,8 @@ def parse_envs(envs, nodes_in_order):
 	#Normalize samples
 	samples = envs_prob_dict.keys()
 	for sample in samples:
+		if envs_prob_dict[sample].sum() == 0:
+			warnings.warn("Warning: the sample %s has non-zero counts, do not use for Unifrac calculations" % sample)
 		envs_prob_dict[sample] = envs_prob_dict[sample]/envs_prob_dict[sample].sum()
 	return (envs_prob_dict, samples)
 
