@@ -1,3 +1,5 @@
+# NOTE: Something is odd about the diffab vectors for weighted and weighted_flow since different vectors are being returned...
+# Using real data, I'm pretty sure the problem is with the weighted_flow version...Now I'm absolutely confident of it. Weighted is ok, weighted_flow has issues...
 import numpy as np
 import dendropy
 import matplotlib.pyplot as plt
@@ -185,7 +187,6 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
 
-# NOTE: Something is odd about the diffab vectors for weighted and weighted_flow since different vectors are being returned...
 
 # This will return the EMDUnifrac distance only
 def EMDUnifrac_weighted(Tint, lint, nodes_in_order, P, Q):
