@@ -3,10 +3,12 @@ import EMDUnifrac as EMDU
 import CAMI
 import numpy as np
 import argparse
+import sys
 
 __author__ = 'David Koslicki (dmkoslicki@gmail.com, david.koslicki@math.oregonstate.edu)'
 __version__ = '1.0.0'
 __date__ = '28 Mar 2017'
+
 
 def read_params(args):
 	parser = argparse.ArgumentParser(description='')
@@ -16,11 +18,6 @@ def read_params(args):
 	arg('--output', metavar='output_file', required=True, default=None, type=str,
 		help="Output file (you should have this end in .csv as it is a matrix)")
 	return vars(parser.parse_args())
-
-#files_file = '/home/dkoslicki/Dropbox/Repositories/EMDUnifrac/data/FileNames.txt'
-if __name__ == '__main__':
-	par = read_params(sys.argv)
-	make_dist_mat(par['input'], par['output'])
 
 
 def make_dist_mat(files_file, output):
@@ -50,6 +47,11 @@ def make_dist_mat(files_file, output):
 
 	np.savetxt(output, D, delimiter=',', newline='\n')
 	#print(D)
+
+
+if __name__ == '__main__':
+	par = read_params(sys.argv)
+	make_dist_mat(par['input'], par['output'])
 
 	# ACK!! Looks like EMDUnifrac_weighted is not returning correct results
 	# EMDUnifrac_weighted_flow for test files 1 and 2 gives ~0.167 while EMDUnifrac_weighted gives ~2.056
