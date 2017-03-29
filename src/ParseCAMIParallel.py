@@ -41,7 +41,8 @@ def make_dist_mat(files_file, output):
 			prob1 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc1)
 			perc2 = CAMI.CAMI_make_percentages(weights_2, nodes_to_index)
 			prob2 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc2)
-			(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
+			#(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
+			(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
 			D[i, j] = Z
 			D[j, i] = Z
 
