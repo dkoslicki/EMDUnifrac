@@ -36,6 +36,8 @@ def make_dist_mat(files_file, output):
 			in_file_1 = files[i]
 			in_file_2 = files[j]
 			if os.path.exists(in_file_1) and os.path.exists(in_file_2):
+				print(in_file_1)
+				print(in_file_2)
 				tax_ids_1, tax_path_1, weights_1 = CAMI.CAMI_read_taxonomy_file(in_file_1)
 				tax_ids_2, tax_path_2, weights_2 = CAMI.CAMI_read_taxonomy_file(in_file_2)
 				Tint, lint, nodes_in_order, nodes_to_index = CAMI.CAMI_form_graph(tax_path_1, tax_path_2)
