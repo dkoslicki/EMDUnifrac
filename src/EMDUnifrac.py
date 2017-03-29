@@ -145,9 +145,9 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 		pos[i] = set([])
 		neg[i] = set([])
 	for i in range(num_nodes):
-		if P[i]>0 and Q[i]>0:
-			F[(i,i)] = np.minimum(P[i],Q[i])
-		G[(i,i)] = P[i] - Q[i]
+		if P[i] > 0 and Q[i] > 0:
+			F[(i, i)] = np.minimum(P[i], Q[i])
+		G[(i, i)] = P[i] - Q[i]
 		if P[i] > Q[i]:
 			pos[i].add(i)
 		elif P[i] < Q[i]:
@@ -157,30 +157,30 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 		for j in pos[i]:
 			for k in neg[i]:
 				if (j not in posremove) and (k not in negremove):
-					val = np.minimum(G[(i,j)], -G[(i,k)])
+					val = np.minimum(G[(i, j)], -G[(i, k)])
 					if val > 0:
-						F[(j,k)] = np.minimum(G[(i,j)], -G[(i,k)])
-						G[(i,j)] = G[(i,j)] - val
-						G[(i,k)] = G[(i,k)] + val
+						F[(j, k)] = np.minimum(G[(i, j)], -G[(i, k)])
+						G[(i, j)] = G[(i, j)] - val
+						G[(i, k)] = G[(i, k)] + val
 						Z = Z + (w[j] + w[k])*val
-					if G[(i,j)] == 0:
+					if G[(i, j)] == 0:
 						posremove.add(j)
-					if G[(i,k)] == 0:
+					if G[(i, k)] == 0:
 						negremove.add(k)
 		pos[i].difference_update(posremove)
 		neg[i].difference_update(negremove)
 		if i < num_nodes-1:
 			for j in pos[i].union(neg[i]):
-					if (Tint[i],j) in G:
-						G[(Tint[i],j)] = G[(Tint[i],j)] + G[(i,j)]
-						diffab[(i,Tint[i])] = diffab[(i,Tint[i])] + G[(i,j)]  # Added to capture 'slack' in subtree JLMC
+					if (Tint[i], j) in G:
+						G[(Tint[i], j)] = G[(Tint[i], j)] + G[(i, j)]
+						diffab[(i, Tint[i])] = diffab[(i, Tint[i])] + G[(i, j)]  # Added to capture 'slack' in subtree JLMC
 					else:
-						G[(Tint[i],j)] = G[(i,j)]
-						diffab[(i,Tint[i])] = G[(i,j)]  # Added to capture 'slack' in subtree JLMC
-					w[j] = w[j] + lint[i,Tint[i]]
+						G[(Tint[i], j)] = G[(i, j)]
+						diffab[(i, Tint[i])] = G[(i, j)]  # Added to capture 'slack' in subtree JLMC
+					w[j] = w[j] + lint[i, Tint[i]]
 			if (i, Tint[i]) in diffab:
 				#diffab[(i,Tint[i])] = lint[i,Tint[i]]*abs(diffab[(i,Tint[i])])  # Captures DiffAbund, scales by length of edge JLMC
-				diffab[(i,Tint[i])] = lint[i,Tint[i]]*diffab[(i,Tint[i])]  # Captures DiffAbund, scales by length of edge JLMC
+				diffab[(i, Tint[i])] = lint[i, Tint[i]]*diffab[(i, Tint[i])]  # Captures DiffAbund, scales by length of edge JLMC
 			pos[Tint[i]] |= pos[i]
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
@@ -467,89 +467,89 @@ def EMDUnifrac_group(ancestors, edge_lengths, nodes_in_order, rel_abund):
 
 def test_parse_tree():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
-	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
+	(Tint, lint, nodes_in_order) = parse_tree(tree_str)
 	assert Tint == {0: 2, 1: 2, 2: 3}
 	assert lint == {(1, 2): 0.1, (2, 3): 0.3, (0, 2): 0.2}
 	assert nodes_in_order == ['C', 'B', 'A', 'temp0']  # temp0 is the root node
 
 def test_simulate_data():
-	basis = ['A','B','C','temp0']  # temp0 is the root node
+	basis = ['A', 'B', 'C', 'temp0']  # temp0 is the root node
 	basis_sim = simulate_data(basis)
 	assert basis_sim.keys().sort() == basis.sort()
-	assert basis_sim['A'].keys() == ['sample1','sample2']
-	assert basis_sim['B'].keys() == ['sample1','sample2']
-	assert basis_sim['C'].keys() == ['sample1','sample2']
-	assert basis_sim['temp0'].keys() == ['sample1','sample2']  # temp0 is the root node
+	assert basis_sim['A'].keys() == ['sample1', 'sample2']
+	assert basis_sim['B'].keys() == ['sample1', 'sample2']
+	assert basis_sim['C'].keys() == ['sample1', 'sample2']
+	assert basis_sim['temp0'].keys() == ['sample1', 'sample2']  # temp0 is the root node
 	
 def test_parse_envs():
-	basis = ['C', 'B', 'A','temp0']  # temp0 is the root node
+	basis = ['C', 'B', 'A', 'temp0']  # temp0 is the root node
 	basis_samples = {
-		'C':{'sample1':1,'sample2':0},
-		'B':{'sample1':1,'sample2':1},
-		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node
-	(basis_weighted, samples) = parse_envs(basis_samples,basis) 
+		'C': {'sample1': 1, 'sample2': 0},
+		'B': {'sample1': 1, 'sample2': 1},
+		'A': {'sample1': 0, 'sample2': 0},
+		'temp0': {'sample1': 0, 'sample2': 1}}  # temp0 is the root node
+	(basis_weighted, samples) = parse_envs(basis_samples, basis)
 	assert [basis_weighted['sample1'][i] for i in range(4)] == [0.5, 0.5, 0.0, 0.0]
 	assert [basis_weighted['sample2'][i] for i in range(4)] == [0.0, 0.5, 0.0, 0.5]
-	assert samples == ['sample1','sample2']
+	assert samples == ['sample1', 'sample2']
 	
 def test_EMDUnifrac_weighted_flow():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'  # input taxonomic tree
 	(Tint, lint, nodes_in_order) = parse_tree(tree_str)  # parse the tree, getting nodes (Tint), edge lengths (lint), and node names (nodes_in_order)
 	# Create a toy environment
 	nodes_samples = {
-		'C':{'sample1':1,'sample2':0},
-		'B':{'sample1':1,'sample2':1},
-		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node, not named in Newick format, but included in nodes_in_order
+		'C': {'sample1': 1, 'sample2': 0},
+		'B': {'sample1': 1, 'sample2': 1},
+		'A': {'sample1': 0, 'sample2': 0},
+		'temp0': {'sample1': 0, 'sample2': 1}}  # temp0 is the root node, not named in Newick format, but included in nodes_in_order
 	(nodes_weighted, samples) = parse_envs(nodes_samples, nodes_in_order)  # Parse the environments.
-	(Z , F, diffab) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, nodes_weighted['sample1'], nodes_weighted['sample2'])  # Run the weighted version of EMDUnifrac that returns the flow
+	(Z, F, diffab) = EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, nodes_weighted['sample1'], nodes_weighted['sample2'])  # Run the weighted version of EMDUnifrac that returns the flow
 	# Check to make sure results make sense
 	assert Z == 0.25  # This is the Unifrac distance
-	assert F[(0,3)] == 0.5  # F is the flow and is in a sparse matrix format: a dictionary with tuple keys using elements of Tint and values T[(i, j)] equal to amount of abundance moved from organism nodes_in_order(i) to nodes_in_order(j)
-	assert F[(1,1)] == 0.5
+	assert F[(0, 3)] == 0.5  # F is the flow and is in a sparse matrix format: a dictionary with tuple keys using elements of Tint and values T[(i, j)] equal to amount of abundance moved from organism nodes_in_order(i) to nodes_in_order(j)
+	assert F[(1, 1)] == 0.5
 	assert sum(F.values()) == 1
 	assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}  # diffab is the differential abundance vector, also in a sparse matrix format: a dictionary with tuple keys using elements of Tint and values diffab[(i, j)] equal to the signed difference of abundance between the two samples restricted to the sub-tree defined by nodes_in_order(i) and weighted by the edge length lint[(i,j)].
 	
 def test_EMDUnifrac_weighted():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'  # there is an internal node (temp0) here.
-	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
+	(Tint, lint, nodes_in_order) = parse_tree(tree_str)
 	nodes_samples = {
-		'C':{'sample1':1,'sample2':0},
-		'B':{'sample1':1,'sample2':1},
-		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}  # temp0 is the root node
-	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order)
-	(Z, diffab) = EMDUnifrac_weighted(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
+		'C': {'sample1': 1, 'sample2': 0},
+		'B': {'sample1': 1, 'sample2': 1},
+		'A': {'sample1': 0, 'sample2': 0},
+		'temp0': {'sample1': 0, 'sample2': 1}}  # temp0 is the root node
+	(nodes_weighted, samples) = parse_envs(nodes_samples, nodes_in_order)
+	(Z, diffab) = EMDUnifrac_weighted(Tint, lint, nodes_in_order, nodes_weighted['sample1'], nodes_weighted['sample2'])
 	assert Z == 0.25
 	assert diffab == {(2, 3): 0.14999999999999999, (0, 2): 0.10000000000000001}
 	
 def test_EMDUnifrac_unweighted():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
-	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
+	(Tint, lint, nodes_in_order) = parse_tree(tree_str)
 	nodes_samples = {
-		'C':{'sample1':1,'sample2':0},
-		'B':{'sample1':1,'sample2':1},
-		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}
-	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order)
-	(Z, diffab) = EMDUnifrac_unweighted(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
+		'C': {'sample1': 1, 'sample2': 0},
+		'B': {'sample1': 1, 'sample2': 1},
+		'A': {'sample1': 0, 'sample2': 0},
+		'temp0': {'sample1': 0, 'sample2': 1}}
+	(nodes_weighted, samples) = parse_envs(nodes_samples, nodes_in_order)
+	(Z, diffab) = EMDUnifrac_unweighted(Tint, lint, nodes_in_order, nodes_weighted['sample1'], nodes_weighted['sample2'])
 	assert Z == 0.5
 	assert diffab == {(2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
 	
 def test_EMDUnifrac_unweighted_flow():
 	tree_str = '((B:0.1,C:0.2)A:0.3);'
-	(Tint,lint,nodes_in_order) = parse_tree(tree_str)
+	(Tint, lint, nodes_in_order) = parse_tree(tree_str)
 	nodes_samples = {
-		'C':{'sample1':1,'sample2':0},
-		'B':{'sample1':1,'sample2':1},
-		'A':{'sample1':0,'sample2':0},
-		'temp0':{'sample1':0,'sample2':1}}
-	(nodes_weighted, samples) = parse_envs(nodes_samples,nodes_in_order)
-	(Z,F, diffab) = EMDUnifrac_unweighted_flow(Tint,lint,nodes_in_order,nodes_weighted['sample1'],nodes_weighted['sample2'])
+		'C': {'sample1': 1, 'sample2': 0},
+		'B': {'sample1': 1, 'sample2': 1},
+		'A': {'sample1': 0, 'sample2': 0},
+		'temp0': {'sample1':0,'sample2': 1}}
+	(nodes_weighted, samples) = parse_envs(nodes_samples, nodes_in_order)
+	(Z, F, diffab) = EMDUnifrac_unweighted_flow(Tint, lint, nodes_in_order, nodes_weighted['sample1'], nodes_weighted['sample2'])
 	assert Z == 0.5
-	assert F[(0,3)] == 1
-	assert F[(1,1)] == 1
+	assert F[(0, 3)] == 1
+	assert F[(1, 1)] == 1
 	assert sum(F.values()) == 2
 	assert diffab == {(2, 3): 0.29999999999999999, (0, 2): 0.20000000000000001}
 

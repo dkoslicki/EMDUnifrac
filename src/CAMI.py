@@ -2,6 +2,8 @@ import numpy as np
 import sys
 import EMDUnifrac as EMDU
 
+# This is to be used as a package. I.e. import CAMI, and then use the included functions as needed. See ParseCAMIParallel.py
+
 # It should be noted that using the profiles misses out on taxa not represented in either of the profiles
 # So the trees are constructed *only* from the taxa present in one of the profiles
 
@@ -89,8 +91,7 @@ def CAMI_form_graph(tax_path_1, tax_path_2):
 			parent = nodes_dict[node][0]
 			Tint[i] = nodes_to_index[parent]
 			lint[nodes_to_index[node], nodes_to_index[parent]] = nodes_dict[node][1]
-		else:  # Node isn't in there, so it's a terminal parent node. Attach it to -1
-			parent = '-1'
+		else:  # Node isn't in there, so it's a terminal parent node. Attach it to -1, which will be the last entry of nodes_in_order
 			Tint[i] = len(nodes_in_order)
 			lint[nodes_to_index[node], len(nodes_in_order)] = 1
 	# Append the root node
@@ -143,8 +144,6 @@ def CAMI_get_probability_distribution(nodes_in_order, Tint, percentages_dict):
 					probability_distribution[i] = max([probability_distribution[i] - percentages_dict[desc_node], 0])
 	# normalize to make sure it's a prob. distribution
 	return probability_distribution / np.sum(probability_distribution)
-
-
 
 
 def test_real_data():
