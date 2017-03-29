@@ -4,6 +4,7 @@ import CAMI
 import numpy as np
 import argparse
 import sys
+import os
 
 __author__ = 'David Koslicki (dmkoslicki@gmail.com, david.koslicki@math.oregonstate.edu)'
 __version__ = '1.0.0'
@@ -34,18 +35,18 @@ def make_dist_mat(files_file, output):
 		for j in xrange(i+1, len(files)):
 			in_file_1 = files[i]
 			in_file_2 = files[j]
-			tax_ids_1, tax_path_1, weights_1 = CAMI.CAMI_read_taxonomy_file(in_file_1)
-			tax_ids_2, tax_path_2, weights_2 = CAMI.CAMI_read_taxonomy_file(in_file_2)
-			Tint, lint, nodes_in_order, nodes_to_index = CAMI.CAMI_form_graph(tax_path_1, tax_path_2)
-			perc1 = CAMI.CAMI_make_percentages(weights_1, nodes_to_index)
-			prob1 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc1)
-			perc2 = CAMI.CAMI_make_percentages(weights_2, nodes_to_index)
-			prob2 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc2)
-			#(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
-			(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
-			D[i, j] = Z
-			D[j, i] = Z
-
+			if os.path.exists(in_file_1) and os.path.exists(in_file_2):
+				tax_ids_1, tax_path_1, weights_1 = CAMI.CAMI_read_taxonomy_file(in_file_1)
+				tax_ids_2, tax_path_2, weights_2 = CAMI.CAMI_read_taxonomy_file(in_file_2)
+				Tint, lint, nodes_in_order, nodes_to_index = CAMI.CAMI_form_graph(tax_path_1, tax_path_2)
+				perc1 = CAMI.CAMI_make_percentages(weights_1, nodes_to_index)
+				prob1 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc1)
+				perc2 = CAMI.CAMI_make_percentages(weights_2, nodes_to_index)
+				prob2 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc2)
+				#(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
+				(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
+				D[i, j] = Z
+				D[j, i] = Z
 	np.savetxt(output, D, delimiter=',', newline='\n')
 	#print(D)
 
