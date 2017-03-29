@@ -79,6 +79,7 @@ def CAMI_form_graph(tax_path_1, tax_path_2):
 				else:
 					nodes_dict[tax_ids[i]] = (parent_id, branch_len)
 				break
+			nodes_dict[tax_ids[i]] = (parent_id, branch_len) ################# If all else fails, connect it to the root
 	nodes_in_order = set(nodes_dict.keys())
 	nodes_in_order = list(nodes_in_order.union(set([val[0] for val in nodes_dict.values()])))
 	# Now create the Tint and lint

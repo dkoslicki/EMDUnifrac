@@ -72,3 +72,15 @@ if __name__ == '__main__':
 	#prob2 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc2)
 	#(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
 	#(Z2, diffab2) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
+
+in_file_1 = '/home/dkoslicki/Dropbox/Repositories/EMDUnifrac/data/test3.profile'
+in_file_2 = '/home/dkoslicki/Dropbox/Repositories/EMDUnifrac/data/test4.profile'
+tax_ids_1, tax_path_1, weights_1 = CAMI.CAMI_read_taxonomy_file(in_file_1)
+tax_ids_2, tax_path_2, weights_2 = CAMI.CAMI_read_taxonomy_file(in_file_2)
+Tint, lint, nodes_in_order, nodes_to_index = CAMI.CAMI_form_graph(tax_path_1, tax_path_2)
+perc1 = CAMI.CAMI_make_percentages(weights_1, nodes_to_index)
+prob1 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc1)
+perc2 = CAMI.CAMI_make_percentages(weights_2, nodes_to_index)
+prob2 = CAMI.CAMI_get_probability_distribution(nodes_in_order, Tint, perc2)
+#(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
+(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
