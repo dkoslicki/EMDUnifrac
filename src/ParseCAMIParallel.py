@@ -39,6 +39,7 @@ def make_dist_mat(files_file, output, threshold):
 	profiles = dict()
 	for i in xrange(len(files)):
 		if os.path.exists(files[i]):
+			print("parsing, normalizing, and thresholding file %d" % i)
 			profile = PF.Profile(files[i])
 			profile.normalize()
 			if threshold > 0:
