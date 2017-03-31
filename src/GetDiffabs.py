@@ -2,6 +2,9 @@
 # both in the same order, and then will group according to the metadata and find the most significant diffab entries,
 # i.e. the tax_path_sn's that contribute most the the unifrac distance
 # USER BE AWARE THAT YOU SHOULD NOT TRUST RESULTS THAT HAVE MISSING TAXONOMIC RANKS!!! Mostly a MetaPhlAn2 problem
+
+# TO DO: add a "top k" parameter (mutually exclusive to the threshold) that gives the top k number of diffab organisms
+
 import EMDUnifrac as EMDU
 import numpy as np
 import argparse
