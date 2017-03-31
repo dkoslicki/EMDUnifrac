@@ -89,7 +89,9 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 		for file_name in file_names_grouped[group_index]:
 			if not os.path.exists(file_name):
 				print('Watch out, this file does not exist and will not be used in the following calculation: %s' % file_name)
-			profile = PF.Profile(file_name)
+				pass
+			else:
+				profile = PF.Profile(file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
 			if not profile_grouped:
