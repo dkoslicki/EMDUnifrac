@@ -44,7 +44,7 @@ def make_dist_mat(files_file, output, threshold):
 			profile.normalize()
 			if threshold > 0:
 				profile.threshold(threshold)
-				profiles[i] = profile
+			profiles[i] = profile
 
 
 	# This is the lazy way to do it, I should really import everything, threshold it all, and then do pw comparisons
