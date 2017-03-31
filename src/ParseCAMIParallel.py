@@ -34,9 +34,9 @@ def make_dist_mat(files_file, output):
 	fid.close()
 
 	D = np.zeros((len(files), len(files)))
-	profiles = []
-	for i in xrange(len(files)):
-		profiles.append(PF.Profile(files[i]))
+	#profiles = []
+	#for i in xrange(len(files)):
+	#	profiles.append(PF.Profile(files[i]))
 
 	for i in xrange(len(files)):
 		for j in xrange(i+1, len(files)):
@@ -44,8 +44,10 @@ def make_dist_mat(files_file, output):
 			in_file_1 = files[i]
 			in_file_2 = files[j]
 			if os.path.exists(in_file_1) and os.path.exists(in_file_2):
-				profile1 = profiles[i]
-				profile2 = profiles[j]
+				#profile1 = profiles[i]
+				#profile2 = profiles[j]
+				profile1 = PF.Profile(in_file_1)
+				profile2 = PF.Profile(in_file_2)
 				(Tint, lint, nodes_in_order, nodes_to_index, prob1, prob2) = profile1.make_unifrac_input_and_normalize(profile2)
 				(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
 				#(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
