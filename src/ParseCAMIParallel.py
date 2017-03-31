@@ -22,10 +22,12 @@ def read_params(args):
 		default=None, help="File of CAMI profile files to use")
 	arg('--output', metavar='output_file', required=True, default=None, type=str,
 		help="Output file (you should have this end in .csv as it is a matrix)")
+	arg('--threshold', metavar='threshold', required=False, default=0, type=float,
+		help="threshold you would like to use to filter before doing EMDUnifrac")
 	return vars(parser.parse_args())
 
 
-def make_dist_mat(files_file, output):
+def make_dist_mat(files_file, output, threshold):
 	files = []
 	fid = open(files_file, 'r')
 	for line in fid.readlines():
@@ -48,6 +50,9 @@ def make_dist_mat(files_file, output):
 				#profile2 = profiles[j]
 				profile1 = PF.Profile(in_file_1)
 				profile2 = PF.Profile(in_file_2)
+				if threshold > 0:
+					profile1.threshold(threshold)
+					profile2.threshold(threshold)
 				(Tint, lint, nodes_in_order, nodes_to_index, prob1, prob2) = profile1.make_unifrac_input_and_normalize(profile2)
 				(Z, F, diffab) = EMDU.EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, prob1, prob2)
 				#(Z, diffab) = EMDU.EMDUnifrac_weighted(Tint, lint, nodes_in_order, prob1, prob2)
@@ -57,4 +62,4 @@ def make_dist_mat(files_file, output):
 
 if __name__ == '__main__':
 	par = read_params(sys.argv)
-	make_dist_mat(par['input'], par['output'])
+	make_dist_mat(par['input'], par['output'], par['threshold'])
