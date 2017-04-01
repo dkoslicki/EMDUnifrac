@@ -264,7 +264,8 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 
 if __name__ == '__main__':
 	par = read_params(sys.argv)
-	get_differentially_expressed_critters(par['input'], par['meta'], par['threshold'], par['rank'], par['output'], par['outputdata'])
+	get_differentially_expressed_critters(par['input'], par['meta'], par['threshold'],
+										par['rank'], par['output'], par['outputdata'], par['filter'])
 
 
 
