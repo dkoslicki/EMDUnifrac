@@ -3,7 +3,9 @@
 # i.e. the tax_path_sn's that contribute most the the unifrac distance
 # USER BE AWARE THAT YOU SHOULD NOT TRUST RESULTS THAT HAVE MISSING TAXONOMIC RANKS!!! Mostly a MetaPhlAn2 problem
 
-# TO DO: add a "top k" parameter (mutually exclusive to the threshold) that gives the top k number of diffab organisms
+# TO DO:
+# 1. add a "top k" parameter (mutually exclusive to the threshold) that gives the top k number of diffab organisms
+# 2. currently this is quite inefficient as I'm looping over the files multiple times (and saving ALL the tax_ids to names) etc
 
 # NEED TO FIX THE FACT THAT THE exported data matrix is not doing things at a fixed rank...
 
@@ -40,10 +42,13 @@ def read_params(args):
 					help='output txt file for results')
 	arg('--outputdata', metavar='output data file', required=False, default=None, type=str,
 					help='tsv file for output of extracted abundance data')
+	arg('--filter', metavar='filter value', required=False, default=None, type=float,
+					help='filter value to use before finding differentially abundant organisms')
 	return vars(parser.parse_args())
 
 
-def get_differentially_expressed_critters(file_names_file, meta_data_file, significant_threshold, rank, output_file, extracted_abundances_file_name):
+def get_differentially_expressed_critters(file_names_file, meta_data_file, significant_threshold,
+										rank, output_file, extracted_abundances_file_name, filter_value):
 	rank_length = None
 	if rank == "superkingdom":
 		rank_length = 1
@@ -102,6 +107,10 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 				profile = PF.Profile(file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
+			# If requested, filter the profile first
+			if filter_value:
+				profile.threshold(filter_value)  # filter
+				profile.normalize()  # then normalize again
 			# Get ALL the tax_id -> name mappings
 			for key in profile._data.keys():
 				if "tax_path_sn" in profile._data[key]:
