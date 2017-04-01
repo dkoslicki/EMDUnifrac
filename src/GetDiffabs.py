@@ -91,6 +91,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 		file_names_grouped[group_index].append(file_names[data_index])
 
 	grouped_profiles = []
+	significant_tax_ids_to_names = dict()
 	for group_index in xrange(len(file_names_grouped)):
 		profile_grouped = None  # Initial profile is empty
 		for file_name in file_names_grouped[group_index]:
@@ -101,6 +102,11 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 				profile = PF.Profile(file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
+			# Get ALL the tax_id -> name mappings
+			for key in profile._data.keys():
+				if "tax_path_sn" in profile._data[key]:
+					if len(profile._data[key]["tax_path_sn"]) >= 1:
+						significant_tax_ids_to_names[key] = profile._data[key]["tax_path_sn"][-1]
 			if not profile_grouped:
 				profile_grouped = profile
 			else:  #otherwise, merge it
@@ -129,7 +135,6 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 			std = np.std(np.abs(diffab_vals))  # and the standard deviation
 			significant_tax_ids = []
 			significant_values = []
-			significant_tax_ids_to_names = dict()
 			index_to_nodes = dict(zip(nodes_to_index.values(), nodes_to_index.keys()))
 			max_ind = np.argmax(diffab_vals)  # Index of the maximially expressed tax_id
 			if significant_threshold >= 0:  # If threshold is positive, use as factor for std_dev
@@ -153,7 +158,6 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 			significant_tax_paths = []
 			for key in significant_tax_ids:
 				if key in profile1._data:
-					significant_tax_ids_to_names[key] = profile1._data[key]["tax_path_sn"][-1]
 					if rank_length:  # if rank length has been specified, only output stuff at this rank
 						path_length = len(profile1._data[key]["tax_path"])  # get path length
 						if path_length == rank_length:  # check if it is correct
@@ -167,7 +171,6 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 						tax_path_sn = "|".join(profile1._data[key]["tax_path_sn"])
 						significant_tax_path_sns.append(tax_path_sn)
 				elif key in profile2._data:
-					significant_tax_ids_to_names[key] = profile2._data[key]["tax_path_sn"][-1]
 					if rank_length:  # if rank length has been specified, only output stuff at this rank
 						path_length = len(profile2._data[key]["tax_path"])  # get path length
 						if path_length == rank_length:  # check if it is correct
