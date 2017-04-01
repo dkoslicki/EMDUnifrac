@@ -5,6 +5,8 @@
 
 # TO DO: add a "top k" parameter (mutually exclusive to the threshold) that gives the top k number of diffab organisms
 
+# NEED TO FIX THE FACT THAT THE exported data matrix is not doing things at a fixed rank...
+
 import EMDUnifrac as EMDU
 import numpy as np
 import argparse
@@ -214,6 +216,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 	# Now let's extract these significant taxid's from each of the data sets and write to file
 	# row = organism
 	# column = metadata name
+	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]  # flatten the list
 	if extracted_abundances_file_name is not None:
 		if len(significant_tax_ids) > 0:  # if there's anything to work with
 			unique_significant_tax_ids = list(set(significant_tax_ids))
