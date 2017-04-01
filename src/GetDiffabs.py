@@ -151,6 +151,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 			significant_tax_paths = []
 			for key in significant_tax_ids:
 				if key in profile1._data:
+					significant_tax_ids_to_names[key] = profile1._data[key]["tax_path_sn"][-1]
 					if rank_length:  # if rank length has been specified, only output stuff at this rank
 						path_length = len(profile1._data[key]["tax_path"])  # get path length
 						if path_length == rank_length:  # check if it is correct
@@ -158,14 +159,13 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 							significant_tax_paths.append(tax_path)
 							tax_path_sn = "|".join(profile1._data[key]["tax_path_sn"])
 							significant_tax_path_sns.append(tax_path_sn)
-							significant_tax_ids_to_names[key] = profile1._data[key]["tax_path_sn"][-1]
 					else:
 						tax_path = "|".join(profile1._data[key]["tax_path"])
 						significant_tax_paths.append(tax_path)
 						tax_path_sn = "|".join(profile1._data[key]["tax_path_sn"])
 						significant_tax_path_sns.append(tax_path_sn)
-						significant_tax_ids_to_names[key] = profile1._data[key]["tax_path_sn"][-1]
 				elif key in profile2._data:
+					significant_tax_ids_to_names[key] = profile2._data[key]["tax_path_sn"][-1]
 					if rank_length:  # if rank length has been specified, only output stuff at this rank
 						path_length = len(profile2._data[key]["tax_path"])  # get path length
 						if path_length == rank_length:  # check if it is correct
@@ -173,13 +173,11 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 							significant_tax_paths.append(tax_path)
 							tax_path_sn = "|".join(profile2._data[key]["tax_path_sn"])
 							significant_tax_path_sns.append(tax_path_sn)
-							significant_tax_ids_to_names[key] = profile2._data[key]["tax_path_sn"][-1]
 					else:
 						tax_path = "|".join(profile2._data[key]["tax_path"])
 						significant_tax_paths.append(tax_path)
 						tax_path_sn = "|".join(profile2._data[key]["tax_path_sn"])
 						significant_tax_path_sns.append(tax_path_sn)
-						significant_tax_ids_to_names[key] = profile2._data[key]["tax_path_sn"][-1]
 			over_under_amount[meta_data_unique[i], meta_data_unique[j]] = significant_values
 			over_under_tax_path[meta_data_unique[i], meta_data_unique[j]] = significant_tax_paths
 			over_under_tax_path_sn[meta_data_unique[i], meta_data_unique[j]] = significant_tax_path_sns
