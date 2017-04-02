@@ -87,7 +87,7 @@ def get_differentially_expressed_critters(
 	fid.close()
 
 	if len(file_names) != len(meta_data):
-		print('Ack! Your metadata file and files names file have a different number of elements!')
+		print('Ack! Your metadata file and files names file have a different number of lines!')
 		raise Exception
 
 	meta_data_unique = sorted(list(meta_data_unique))  # get the unique metadata items
@@ -107,7 +107,6 @@ def get_differentially_expressed_critters(
 				pass
 			else:
 				profile = PF.Profile(file_name)
-				print('First processing of file %s' % file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
 			# If requested, filter the profile first
@@ -128,7 +127,6 @@ def get_differentially_expressed_critters(
 		# And add it to the grouped profiles
 		grouped_profiles.append(profile_grouped)
 
-	print('Files loaded, now running unifrac')
 	# Now do EMDUnifrac and find over/under-expression
 	# over/under will be a dictionary with keys as the metadatas, values as tax path, tax path sn, or amount
 	over_under_tax_path = dict()
@@ -200,7 +198,6 @@ def get_differentially_expressed_critters(
 			over_under_tax_path[meta_data_unique[i], meta_data_unique[j]] = significant_tax_paths
 			over_under_tax_path_sn[meta_data_unique[i], meta_data_unique[j]] = significant_tax_path_sns
 
-	print('writing output to file')
 	# Now I just have to figure out a reasonable way to export this stuff... I hope I can do it in a flat file of some sort
 	# Let's just make it a flat text file
 	fid = open(output_file, 'w')
@@ -233,12 +230,10 @@ def get_differentially_expressed_critters(
 	# Now let's extract these significant taxid's from each of the data sets and write to file
 	# row = organism
 	# column = metadata name
-	print('pulling off data')
 	# get all profiles up front
 	profiles = []
 	for file_name_index in xrange(len(file_names)):
 		file_name = file_names[file_name_index]
-		print('getting file %s' % file_name)
 		profile = PF.Profile(file_name)
 		profile.normalize()
 		profiles.append(profile)
