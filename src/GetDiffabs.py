@@ -239,7 +239,7 @@ def get_differentially_expressed_critters(
 	for file_name_index in xrange(len(file_names)):
 		file_name = file_names[file_name_index]
 		print('getting file %s' % file_name)
-		profile = PF.profile(file_name)
+		profile = PF.Profile(file_name)
 		profile.normalize()
 		profiles.append(profile)
 	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]  # flatten the list
