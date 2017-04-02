@@ -69,7 +69,6 @@ def get_differentially_expressed_critters(
 	elif rank == "strain":
 		rank_length = 8
 
-
 	meta_data = []
 	meta_data_unique = set()
 	fid = open(meta_data_file, 'r')
@@ -103,7 +102,8 @@ def get_differentially_expressed_critters(
 		profile_grouped = None  # Initial profile is empty
 		for file_name in file_names_grouped[group_index]:
 			if not os.path.exists(file_name):
-				print('Watch out, this file does not exist and will not be used in the following calculation: %s' % file_name)
+				print('Watch out, this file does not exist and will not be used '
+										'in the following calculation: %s' % file_name)
 				pass
 			else:
 				profile = PF.Profile(file_name)
@@ -120,7 +120,7 @@ def get_differentially_expressed_critters(
 						significant_tax_ids_to_names[key] = profile._data[key]["tax_path_sn"][-1]
 			if not profile_grouped:
 				profile_grouped = profile
-			else:  #otherwise, merge it
+			else:  # otherwise, merge it
 				profile_grouped.merge(profile)
 		# After grouping, normalize it
 		profile_grouped.normalize()
@@ -163,7 +163,6 @@ def get_differentially_expressed_critters(
 					significant_tax_ids.append(tax_id)
 					significant_values.append(val)
 
-
 			# Pull off the significant tax paths and tax path names
 			significant_tax_path_sns = []
 			significant_tax_paths = []
@@ -198,7 +197,8 @@ def get_differentially_expressed_critters(
 			over_under_tax_path[meta_data_unique[i], meta_data_unique[j]] = significant_tax_paths
 			over_under_tax_path_sn[meta_data_unique[i], meta_data_unique[j]] = significant_tax_path_sns
 
-	# Now I just have to figure out a reasonable way to export this stuff... I hope I can do it in a flat file of some sort
+	# Now I just have to figure out a reasonable way to export this stuff...
+	# I hope I can do it in a flat file of some sort
 	# Let's just make it a flat text file
 	fid = open(output_file, 'w')
 	for i in xrange(len(grouped_profiles)):
@@ -237,7 +237,8 @@ def get_differentially_expressed_critters(
 		profile = PF.Profile(file_name)
 		profile.normalize()
 		profiles.append(profile)
-	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]  # flatten the list
+	# flatten the list
+	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]
 	if extracted_abundances_file_name is not None:
 		if len(significant_tax_ids) > 0:  # if there's anything to work with
 			unique_significant_tax_ids = list(set(significant_tax_ids))
@@ -249,18 +250,12 @@ def get_differentially_expressed_critters(
 			for tax_id in unique_significant_tax_ids:  # over each of the significant tax_ids
 				fid.write('%s\t' % significant_tax_ids_to_names[tax_id])  # label the row
 				for file_name_index in xrange(len(file_names) - 1):  # loop through the profiles
-					#file_name = file_names[file_name_index]
-					#profile = PF.Profile(file_name)  # import
-					#print('Importing file %s' % file_name)
-					#profile.normalize()  # normalize
 					profile = profiles[file_name_index]
 					if tax_id in profile._data:  # if it's in there, write the abundance, if not, put a zero
 						fid.write('%f\t' % profile._data[tax_id]["abundance"])
 					else:
 						fid.write('0\t')
 				# Make the last line not end in tab
-				#profile = PF.Profile(file_names[-1])  # import
-				#profile.normalize()  # normalize
 				profile = profiles[-1]
 				if tax_id in profile._data:  # if it's in there, write the abundance, if not, put a zero
 					fid.write('%f' % profile._data[tax_id]["abundance"])
