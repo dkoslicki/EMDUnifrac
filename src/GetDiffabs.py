@@ -43,12 +43,14 @@ def read_params(args):
 	arg('--outputdata', metavar='output data file', required=False, default=None, type=str,
 					help='tsv file for output of extracted abundance data')
 	arg('--filter', metavar='filter value', required=False, default=None, type=float,
-					help='filter value to use before finding differentially abundant organisms')
+					help='filter value to use before finding differentially abundant organisms. Outputdata file will'
+					'still contain the raw, normalized values though.')
 	return vars(parser.parse_args())
 
 
-def get_differentially_expressed_critters(file_names_file, meta_data_file, significant_threshold,
-										rank, output_file, extracted_abundances_file_name, filter_value):
+def get_differentially_expressed_critters(
+		file_names_file, meta_data_file, significant_threshold,
+		rank, output_file, extracted_abundances_file_name, filter_value):
 	rank_length = None
 	if rank == "superkingdom":
 		rank_length = 1
@@ -232,12 +234,18 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 	# row = organism
 	# column = metadata name
 	print('pulling off data')
+	# get all profiles up front
+	profiles = []
+	for file_name_index in xrange(len(file_names)):
+		file_name = file_names[file_name_index]
+		print('getting file %s' % file_name)
+		profile = PF.profile(file_name)
+		profile.normalize()
+		profiles.append(profile)
 	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]  # flatten the list
 	if extracted_abundances_file_name is not None:
 		if len(significant_tax_ids) > 0:  # if there's anything to work with
 			unique_significant_tax_ids = list(set(significant_tax_ids))
-			# extracted_abundances = np.zeros((len(unique_significant_tax_ids), len(meta_data)))  # Don't need this as I'm
-			# writing directly to file.
 			fid = open(extracted_abundances_file_name, 'w')
 			fid.write('name/metadata\t')
 			for name_index in xrange(len(meta_data) - 1):  # meta-data as columns
@@ -245,18 +253,20 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 			fid.write('%s\n' % meta_data[-1])  # last one is a new-line
 			for tax_id in unique_significant_tax_ids:  # over each of the significant tax_ids
 				fid.write('%s\t' % significant_tax_ids_to_names[tax_id])  # label the row
-				for file_name_index in xrange(len(file_names) - 1):  # loop through the files (AGAIN)
-					file_name = file_names[file_name_index]
-					profile = PF.Profile(file_name)  # import
-					print('Importing file %s', file_name)
-					profile.normalize()  # normalize
+				for file_name_index in xrange(len(file_names) - 1):  # loop through the profiles
+					#file_name = file_names[file_name_index]
+					#profile = PF.Profile(file_name)  # import
+					#print('Importing file %s' % file_name)
+					#profile.normalize()  # normalize
+					profile = profiles[file_name_index]
 					if tax_id in profile._data:  # if it's in there, write the abundance, if not, put a zero
 						fid.write('%f\t' % profile._data[tax_id]["abundance"])
 					else:
 						fid.write('0\t')
 				# Make the last line not end in tab
-				profile = PF.Profile(file_names[-1])  # import
-				profile.normalize()  # normalize
+				#profile = PF.Profile(file_names[-1])  # import
+				#profile.normalize()  # normalize
+				profile = profiles[-1]
 				if tax_id in profile._data:  # if it's in there, write the abundance, if not, put a zero
 					fid.write('%f' % profile._data[tax_id]["abundance"])
 				else:
@@ -269,8 +279,9 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 
 if __name__ == '__main__':
 	par = read_params(sys.argv)
-	get_differentially_expressed_critters(par['input'], par['meta'], par['threshold'],
-										par['rank'], par['output'], par['outputdata'], par['filter'])
+	get_differentially_expressed_critters(
+		par['input'], par['meta'], par['threshold'],
+		par['rank'], par['output'], par['outputdata'], par['filter'])
 
 
 
