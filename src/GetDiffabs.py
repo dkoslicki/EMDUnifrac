@@ -105,6 +105,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 				pass
 			else:
 				profile = PF.Profile(file_name)
+				print('First processing of file %s' % file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
 			# If requested, filter the profile first
@@ -125,6 +126,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 		# And add it to the grouped profiles
 		grouped_profiles.append(profile_grouped)
 
+	print('Files loaded, now running unifrac')
 	# Now do EMDUnifrac and find over/under-expression
 	# over/under will be a dictionary with keys as the metadatas, values as tax path, tax path sn, or amount
 	over_under_tax_path = dict()
@@ -196,6 +198,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 			over_under_tax_path[meta_data_unique[i], meta_data_unique[j]] = significant_tax_paths
 			over_under_tax_path_sn[meta_data_unique[i], meta_data_unique[j]] = significant_tax_path_sns
 
+	print('writing output to file')
 	# Now I just have to figure out a reasonable way to export this stuff... I hope I can do it in a flat file of some sort
 	# Let's just make it a flat text file
 	fid = open(output_file, 'w')
@@ -228,6 +231,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 	# Now let's extract these significant taxid's from each of the data sets and write to file
 	# row = organism
 	# column = metadata name
+	print('pulling off data')
 	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]  # flatten the list
 	if extracted_abundances_file_name is not None:
 		if len(significant_tax_ids) > 0:  # if there's anything to work with
@@ -244,6 +248,7 @@ def get_differentially_expressed_critters(file_names_file, meta_data_file, signi
 				for file_name_index in xrange(len(file_names) - 1):  # loop through the files (AGAIN)
 					file_name = file_names[file_name_index]
 					profile = PF.Profile(file_name)  # import
+					print('Importing file %s', file_name)
 					profile.normalize()  # normalize
 					if tax_id in profile._data:  # if it's in there, write the abundance, if not, put a zero
 						fid.write('%f\t' % profile._data[tax_id]["abundance"])
