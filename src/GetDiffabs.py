@@ -106,7 +106,6 @@ def get_differentially_expressed_critters(
 				print('Watch out, this file does not exist and will not be used in the following calculation: %s' % file_name)
 				pass
 			else:
-				print('Importing file %s' % file_name)
 				profile = PF.Profile(file_name)
 			# Normalize first, just in case one of the profiles was highly sampled and this was not taken into account
 			profile.normalize()
@@ -235,6 +234,7 @@ def get_differentially_expressed_critters(
 	profiles = []
 	for file_name_index in xrange(len(file_names)):
 		file_name = file_names[file_name_index]
+		print('Importing file %s' % file_name)
 		profile = PF.Profile(file_name)
 		profile.normalize()
 		profiles.append(profile)
