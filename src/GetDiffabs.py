@@ -208,9 +208,12 @@ def get_differentially_expressed_critters(
 			significant_tax_path_sns_raw = over_under_tax_path_sn[meta_data_unique[i], meta_data_unique[j]]
 			# sort by the tax_path lengths
 			lengths = [len(item.split("|")) for item in significant_tax_paths_raw]
-			significant_values = [x for (y, x) in sorted(zip(lengths, significant_values_raw))]
-			significant_tax_paths = [x for (y, x) in sorted(zip(lengths, significant_tax_paths_raw))]
-			significant_tax_path_sns = [x for (y, x) in sorted(zip(lengths, significant_tax_path_sns_raw))]
+			#significant_values = [x for (y, x) in sorted(zip(lengths, significant_values_raw))]
+			significant_values = [x for (y, x) in sorted(zip(lengths, significant_values_raw), key=lambda pair: pair[0])]
+			#significant_tax_paths = [x for (y, x) in sorted(zip(lengths, significant_tax_paths_raw))]
+			significant_tax_paths = [x for (y, x) in sorted(zip(lengths, significant_tax_paths_raw), key=lambda pair: pair[0])]
+			#significant_tax_path_sns = [x for (y, x) in sorted(zip(lengths, significant_tax_path_sns_raw))]
+			significant_tax_path_sns = [x for (y, x) in sorted(zip(lengths, significant_tax_path_sns_raw), key=lambda pair: pair[0])]
 			for write_index in xrange(len(significant_values)):
 				val = significant_values[write_index]
 				path = significant_tax_paths[write_index]
