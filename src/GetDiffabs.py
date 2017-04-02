@@ -234,9 +234,15 @@ def get_differentially_expressed_critters(
 	profiles = []
 	for file_name_index in xrange(len(file_names)):
 		file_name = file_names[file_name_index]
-		profile = PF.Profile(file_name)
-		profile.normalize()
-		profiles.append(profile)
+		if not os.path.exists(file_name):
+			print('Watch out, this file does not exist and will not be used '
+				  'in the following calculation: %s' % file_name)
+			profile = PF.Profile()
+			profiles.append(profile)
+		else:
+			profile = PF.Profile(file_name)
+			profile.normalize()
+			profiles.append(profile)
 	# flatten the list
 	significant_tax_ids = [item.split("|")[-1] for sublist in over_under_tax_path.values() for item in sublist]
 	if extracted_abundances_file_name is not None:
