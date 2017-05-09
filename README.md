@@ -1,7 +1,7 @@
 # EMDUnifrac
 EMDUnifrac is a computational method that computes the Unifrac [1,2,3] distance, but also returns information about which organisms are differentially abundant. This information comes in the form of a *flow* which is a matrix that shows exactly which organism abundances need to be moved where in the computation of Unifrac. A summary of this information is the *differential abundance* vector which shows which organisms are over/under expressed in each sample.
 
-This method utilizes the Earth Mover's distance and details about the algorithm (and proof of correctness) are contained in the [preprint](http://biorxiv.org/content/early/2016/11/11/087171).
+This method utilizes the Earth Mover's distance and details about the algorithm (and proof of correctness) are contained in the [arXiv preprint](https://arxiv.org/abs/1611.04634) (and also [at the bioRxiv](http://biorxiv.org/content/early/2016/11/11/087171).
 
 ## Requirements ##
 + [dendropy](http://www.dendropy.org/)

@@ -39,7 +39,7 @@ def parse_tree(tree_str):
 
 
 
-def parse_tree_file(tree_str_file, suppress_internal_node_taxa=False):
+def parse_tree_file(tree_str_file, suppress_internal_node_taxa=False, suppress_leaf_node_taxa=False):
 	'''
 	(Tint,lint,nodes_in_order) = parse_tree(tree_str_file) 
 	This function will parse a newick tree file (in the file given by tree_str_file) and return the dictionary of ancestors Tint.
@@ -48,7 +48,10 @@ def parse_tree_file(tree_str_file, suppress_internal_node_taxa=False):
 	nodes_in_order is a list of the nodes in the input tree_str such that T[i]=j means nodes_in_order[j] is an ancestor
 	of nodes_in_order[i]. Nodes are labeled from the leaves up.
 	'''
-	dtree = dendropy.Tree.get(path=tree_str_file, schema="newick", suppress_internal_node_taxa=suppress_internal_node_taxa, store_tree_weights=True)
+	dtree = dendropy.Tree.get(path=tree_str_file, schema="newick",
+							suppress_internal_node_taxa=suppress_internal_node_taxa,
+							store_tree_weights=True,
+							suppress_leaf_node_taxa = suppress_leaf_node_taxa)
 	#Name all the internal nodes
 	nodes = dtree.nodes()
 	i=0
