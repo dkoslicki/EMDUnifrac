@@ -67,9 +67,9 @@ for i in range(d):
 O = np.argsort(littlesigma)
 
 # Algorithm 3
-tau = 0.08333
+tau = np.median(littlesigma)
 nt = np.where(littlesigma[O] <= tau)[0][-1]  # largest index <= threshold
-alpha = 1
+alpha = .5
 D = dict()
 
 # Set difference between {2,...,(d-1)/2} - {O(1),...,O(nt)}
@@ -104,3 +104,7 @@ for i in range(d-1, nt, -1):
 # TODO: looks like the distances that I'm getting are exactly 1/2 of what they should be...
 
 # Larger example
+b = 10
+S1 = np.random.dirichlet(np.random.beta(1, 2, size=2**(b+1)-1), size=1000)
+S2 = np.random.dirichlet(np.random.beta(2, 1, size=2**(b+1)-1), size=1000)
+S3 = np.random.dirichlet(np.random.beta(5, .01, size=2**(b+1)-1), size=1000)
