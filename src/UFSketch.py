@@ -26,6 +26,7 @@ S = S1 + S2 + S3
 S_unflat = [S1, S2, S3]
 t = len(S_unflat)
 U = []
+k = len(S)
 
 # Sample size variance estimate
 K = 3
@@ -65,3 +66,41 @@ for i in range(d):
 
 O = np.argsort(littlesigma)
 
+# Algorithm 3
+tau = 0.08333
+nt = np.where(littlesigma[O] <= tau)[0][-1]  # largest index <= threshold
+alpha = 1
+D = dict()
+
+# Set difference between {2,...,(d-1)/2} - {O(1),...,O(nt)}
+J = [item for item in range(1, int((d-1)/2.)) if item not in [O[i] for i in range(O[nt])]]
+J.reverse()
+
+# Iterations
+for i in range(k):
+	si = S[i]
+	for j in J:
+		si[j] = si[j] + l[2*(j+1)-1]*si[2*(j+1)-1] + l[2*(j+1)+1-1]*si[2*(j+1)+1-1]
+
+# line 8
+F = set()
+for i in range(k-1):
+	for j in range(i+1, k-1):
+		F.add((i, j))
+
+for i in range(d-1, nt, -1):
+	if not F:
+		break
+	for tup in list(F):
+		a = tup[0]
+		b = tup[1]
+		if tup in D:
+			D[tup] = D[tup] + abs(S[a][O[i]] - S[b][O[i]])
+		else:
+			D[tup] = abs(S[a][O[i]] - S[b][O[i]])
+		if D[tup] > alpha:
+			F.remove(tup)
+
+# TODO: looks like the distances that I'm getting are exactly 1/2 of what they should be...
+
+# Larger example
