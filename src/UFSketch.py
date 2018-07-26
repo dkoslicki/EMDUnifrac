@@ -56,3 +56,12 @@ for i in range(t):
 
 # line 13, covariance matrix
 BigSigmaU = np.cov(np.array([item for sublist in U for item in sublist]).transpose())  # TODO: check with Jason this works (note the transpose) since it differs from his calculations with U = {p2, p3, p5}
+
+littlesigma = np.zeros(d)
+
+# line 15
+for i in range(d):
+	littlesigma[i] = np.dot(w[i].transpose(), np.matmul(BigSigmaU, w[i]))
+
+O = np.argsort(littlesigma)
+
