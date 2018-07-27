@@ -56,7 +56,8 @@ for i in range(t):
 	U.append(random.sample(S_unflat[i], k=max(1, num_sample)))  # TODO: check with jason that taking max with 1 is ok
 
 # line 13, covariance matrix
-BigSigmaU = np.cov(np.array([item for sublist in U for item in sublist]).transpose())  # TODO: check with Jason this works (note the transpose) since it differs from his calculations with U = {p2, p3, p5}
+# TODO: check with Jason this works (note the transpose) since it differs from his calculations with U = {p2, p3, p5}
+BigSigmaU = np.cov(np.array([item for sublist in U for item in sublist]).transpose())
 
 littlesigma = np.zeros(d)
 
@@ -69,7 +70,7 @@ O = np.argsort(littlesigma)
 # Algorithm 3
 tau = np.median(littlesigma)
 nt = np.where(littlesigma[O] <= tau)[0][-1]  # largest index <= threshold
-alpha = .5
+alpha = .9
 D = dict()
 
 # Set difference between {2,...,(d-1)/2} - {O(1),...,O(nt)}
@@ -104,7 +105,7 @@ for i in range(d-1, nt, -1):
 # TODO: looks like the distances that I'm getting are exactly 1/2 of what they should be...
 
 # Larger example
-b = 10
+b = 15
 S1 = np.random.dirichlet(np.random.beta(1, 2, size=2**(b+1)-1), size=1000)
 S2 = np.random.dirichlet(np.random.beta(2, 1, size=2**(b+1)-1), size=1000)
 S3 = np.random.dirichlet(np.random.beta(5, .01, size=2**(b+1)-1), size=1000)
