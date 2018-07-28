@@ -119,3 +119,14 @@ for i, j in D.keys():
 	Dmat[j, i] = D[(i, j)]
 np.set_printoptions(precision=3)
 print(Dmat)
+
+################################################
+# PCA
+import matplotlib.pyplot as plt
+from sklearn.manifold import MDS
+mds = MDS(n_components=2, dissimilarity='precomputed')
+pos = mds.fit(Dmat).embedding_
+plt.scatter(pos[:, 0], pos[:, 1], color='black', s=50, lw=0, label='MDS')
+plt.show()
+
+
