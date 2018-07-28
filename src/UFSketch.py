@@ -1,9 +1,6 @@
 import numpy as np
-import dendropy
-import matplotlib.pyplot as plt
-import warnings
-import EMDUnifrac as EMD
 import random
+import timeit
 # Very simple example first off
 
 # Tree of depth 2
@@ -22,6 +19,7 @@ S2 = [p3, p4]
 S3 = [p5]
 
 # all samples
+t0 = timeit.default_timer()
 S = S1 + S2 + S3
 S_unflat = [S1, S2, S3]
 t = len(S_unflat)
@@ -68,10 +66,10 @@ for i in range(d):
 O = np.argsort(littlesigma)
 
 # Algorithm 3
-#tau = np.median(littlesigma)
-tau = 0
+tau = np.median(littlesigma)
+# tau = 0
 nt = np.where(littlesigma[O] <= tau)[0][-1]  # largest index <= threshold
-alpha = 100
+alpha = 7
 D = dict()
 
 # Set difference between {2,...,(d-1)/2} - {O(1),...,O(nt)}
@@ -102,17 +100,23 @@ for i in range(d-1, nt, -1):
 			D[tup] = abs(S[a][O[i]] - S[b][O[i]])
 		if D[tup] > alpha:
 			F.remove(tup)
-
-# TODO: looks like the distances that I'm getting are exactly 1/2 of what they should be...
+t1 = timeit.default_timer()
 
 # Larger example
-b = 15
-S1 = np.random.dirichlet(np.random.beta(1, 2, size=2**(b+1)-1), size=1000)
-S2 = np.random.dirichlet(np.random.beta(2, 1, size=2**(b+1)-1), size=1000)
-S3 = np.random.dirichlet(np.random.beta(5, .01, size=2**(b+1)-1), size=1000)
+b = 10
+ones = 10*np.ones((2**(b+1)-1)/3)
+ones = ones.tolist()
+zeros = np.zeros((2**(b+1)-1)/3).tolist()
+#S1 = np.random.dirichlet(np.random.beta(1, 2, size=2**(b+1)-1), size=100).tolist()
+#S2 = np.random.dirichlet(np.random.beta(2, 1, size=2**(b+1)-1), size=100).tolist()
+#S3 = np.random.dirichlet(np.random.beta(5, .01, size=2**(b+1)-1), size=100).tolist()
+S1 = np.random.dirichlet(ones + zeros + zeros + [0], size=100).tolist()
+S2 = np.random.dirichlet(zeros + ones + zeros + [0], size=100).tolist()
+S3 = np.random.dirichlet(ones + zeros + ones + [0], size=100).tolist()
 
 
 ################################################
+# Estimation Dmat
 Dmat = np.zeros((len(S), len(S)))
 for i, j in D.keys():
 	Dmat[i, j] = D[(i, j)]
@@ -121,12 +125,32 @@ np.set_printoptions(precision=3)
 print(Dmat)
 
 ################################################
+# real Dmat
+t2 = timeit.default_timer()
+Dmat_real = np.zeros((len(S), len(S)))
+for i in range(k):
+	for j in range(i+1, k):
+		Dmat_real[i, j] = np.linalg.norm(np.matmul(w, S[i])-np.matmul(w, S[j]), ord=1)
+		Dmat_real[j, i] = Dmat_real[i, j]
+t3 = timeit.default_timer()
+################################################
 # PCA
 import matplotlib.pyplot as plt
 from sklearn.manifold import MDS
 mds = MDS(n_components=2, dissimilarity='precomputed')
 pos = mds.fit(Dmat).embedding_
-plt.scatter(pos[:, 0], pos[:, 1], color='black', s=50, lw=0, label='MDS')
+plt.figure()
+plt.scatter(pos[:, 0], pos[:, 1], color='black', s=10, lw=0)
+plt.title("Estimated, time=%s" % (t1-t0))
 plt.show()
+
+mds = MDS(n_components=2, dissimilarity='precomputed')
+pos = mds.fit(Dmat_real).embedding_
+plt.figure()
+plt.scatter(pos[:, 0], pos[:, 1], color='black', s=10, lw=0)
+plt.title("True, time=%s" % (t3-t2))
+plt.show()
+
+
 
 
