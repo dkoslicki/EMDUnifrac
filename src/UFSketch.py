@@ -29,7 +29,7 @@ U = []
 k = len(S)
 
 # Sample size variance estimate
-K = 3
+K = 5
 
 # all branch lengths 1
 l = dict()
@@ -68,9 +68,10 @@ for i in range(d):
 O = np.argsort(littlesigma)
 
 # Algorithm 3
-tau = np.median(littlesigma)
+#tau = np.median(littlesigma)
+tau = 0
 nt = np.where(littlesigma[O] <= tau)[0][-1]  # largest index <= threshold
-alpha = .9
+alpha = 100
 D = dict()
 
 # Set difference between {2,...,(d-1)/2} - {O(1),...,O(nt)}
@@ -85,8 +86,8 @@ for i in range(k):
 
 # line 8
 F = set()
-for i in range(k-1):
-	for j in range(i+1, k-1):
+for i in range(k):
+	for j in range(i+1, k):
 		F.add((i, j))
 
 for i in range(d-1, nt, -1):
@@ -109,3 +110,12 @@ b = 15
 S1 = np.random.dirichlet(np.random.beta(1, 2, size=2**(b+1)-1), size=1000)
 S2 = np.random.dirichlet(np.random.beta(2, 1, size=2**(b+1)-1), size=1000)
 S3 = np.random.dirichlet(np.random.beta(5, .01, size=2**(b+1)-1), size=1000)
+
+
+################################################
+Dmat = np.zeros((len(S), len(S)))
+for i, j in D.keys():
+	Dmat[i, j] = D[(i, j)]
+	Dmat[j, i] = D[(i, j)]
+np.set_printoptions(precision=3)
+print(Dmat)
