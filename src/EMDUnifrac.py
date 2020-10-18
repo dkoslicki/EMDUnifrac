@@ -174,18 +174,18 @@ def EMDUnifrac_weighted_flow(Tint, lint, nodes_in_order, P, Q):
 						negremove.add(k)
 		pos[i].difference_update(posremove)
 		neg[i].difference_update(negremove)
+		diffab_amount = 0
 		if i < num_nodes-1:
 			for j in pos[i].union(neg[i]):
-					if (Tint[i], j) in G:
+					if (Tint[i], j) in G: # Added to capture 'slack' in subtree JLMC
 						G[(Tint[i], j)] = G[(Tint[i], j)] + G[(i, j)]
-						diffab[(i, Tint[i])] = diffab[(i, Tint[i])] + G[(i, j)]  # Added to capture 'slack' in subtree JLMC
 					else:
 						G[(Tint[i], j)] = G[(i, j)]
-						diffab[(i, Tint[i])] = G[(i, j)]  # Added to capture 'slack' in subtree JLMC
 					w[j] = w[j] + lint[i, Tint[i]]
-			if (i, Tint[i]) in diffab:
+					diffab_amount += G[(i, j)]
+			if diffab_amount != 0:
 				#diffab[(i,Tint[i])] = lint[i,Tint[i]]*abs(diffab[(i,Tint[i])])  # Captures DiffAbund, scales by length of edge JLMC
-				diffab[(i, Tint[i])] = lint[i, Tint[i]]*diffab[(i, Tint[i])]  # Captures DiffAbund, scales by length of edge JLMC
+				diffab[(i, Tint[i])] = lint[i, Tint[i]] * diffab_amount  # Captures DiffAbund, scales by length of edge JLMC
 			pos[Tint[i]] |= pos[i]
 			neg[Tint[i]] |= neg[i]
 	return (Z, F, diffab)  # The returned flow and diffab are on the basis nodes_in_order and is given in sparse matrix dictionary format. eg {(0,0):.5,(1,2):.5}
