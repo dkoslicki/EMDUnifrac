@@ -427,9 +427,7 @@ def EMDUnifrac_weighted_plain(ancestors, edge_lengths, nodes_in_order, P, Q):
 	Z = EMDUnifrac_weighted(ancestors, edge_lengths, nodes_in_order, P, Q)
 	This function takes the ancestor dictionary Tint, the lengths dictionary lint, the basis nodes_in_order
 	and two probability vectors P and Q (typically P = envs_prob_dict[samples[i]], Q = envs_prob_dict[samples[j]]).
-	Returns the weighted Unifrac distance Z and the flow F. The flow F is a dictionary with keys of the form (i,j) where
-	F[(i,j)] == num means that in the calculation of the Unifrac distance, a total mass of num was moved from the node
-	nodes_in_order[i] to the node nodes_in_order[j].
+	Returns the weighted Unifrac distance Z.
 	'''
 	num_nodes = len(nodes_in_order)
 	Z = 0
